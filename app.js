@@ -7,6 +7,7 @@ class App {
     this.currentSmallId = null;
     this.favorites = this.loadFavorites();
     this.searchQuery = "";
+    this.viewMode = localStorage.getItem("ai_system_kb_view_mode") || "list";
     
     // DOM Elements
     this.largeCategoryList = document.getElementById("large-category-list");
@@ -23,14 +24,24 @@ class App {
     this.searchClearBtn = document.getElementById("search-clear-btn");
     this.favoritesToggleBtn = document.getElementById("favorites-toggle");
     
+    // View Toggle Elements
+    this.toggleListBtn = document.getElementById("view-toggle-list");
+    this.toggleDiagramBtn = document.getElementById("view-toggle-diagram");
+    this.sidebarDiagram = document.getElementById("sidebar-diagram");
+    this.diagramWrapper = document.getElementById("diagram-wrapper");
+    
     this.init();
   }
   
   init() {
     this.renderLargeSidebar();
+    this.renderBlockDiagram();
     this.bindEvents();
     this.updateFavoritesCount();
     this.updateArticlesCountBadge();
+    
+    // Set view mode
+    this.setViewMode(this.viewMode);
     
     // Show welcome screen initially
     this.showScreen("welcome");
@@ -65,6 +76,10 @@ class App {
       }
     });
     
+    // View Mode Toggles
+    this.toggleListBtn.addEventListener("click", () => this.setViewMode("list"));
+    this.toggleDiagramBtn.addEventListener("click", () => this.setViewMode("diagram"));
+    
     // Mobile responsive drawers
     const mobileToggle = document.getElementById("mobile-menu-toggle");
     const backdrop = document.getElementById("sidebar-backdrop");
@@ -82,6 +97,34 @@ class App {
     document.body.classList.remove("sidebar-open");
   }
   
+  // View Mode Handler
+  setViewMode(mode) {
+    this.viewMode = mode;
+    localStorage.setItem("ai_system_kb_view_mode", mode);
+    
+    if (mode === "diagram") {
+      document.body.classList.add("mode-diagram");
+      this.sidebarDiagram.classList.remove("hidden");
+      this.toggleListBtn.classList.remove("active");
+      this.toggleDiagramBtn.classList.add("active");
+    } else {
+      document.body.classList.remove("mode-diagram");
+      this.sidebarDiagram.classList.add("hidden");
+      this.toggleListBtn.classList.add("active");
+      this.toggleDiagramBtn.classList.remove("active");
+      
+      // Sync list view sidebar state
+      if (this.currentLargeId) {
+        this.selectLargeCategory(this.currentLargeId);
+      }
+    }
+    
+    // Re-render Lucide icons
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
+  
   // Screen Switching
   showScreen(screenType) {
     this.welcomeScreen.classList.add("hidden");
@@ -89,9 +132,10 @@ class App {
     this.searchScreen.classList.add("hidden");
     this.favoritesScreen.classList.add("hidden");
     
-    // Remove active state from sub-category tree elements
+    // Remove active state from sub-category tree elements and diagram blocks
     if (screenType !== "article") {
       document.querySelectorAll(".nav-tree-item").forEach(item => item.classList.remove("active"));
+      document.querySelectorAll(".diagram-block").forEach(block => block.classList.remove("active"));
       this.currentSmallId = null;
     }
     
@@ -128,6 +172,61 @@ class App {
       });
       
       this.largeCategoryList.appendChild(btn);
+    });
+    
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
+  
+  // 1b. Render Visual Block Diagram
+  renderBlockDiagram() {
+    this.diagramWrapper.innerHTML = "";
+    
+    this.data.forEach(largeCat => {
+      // Create a layer representing the Large Category
+      const layer = document.createElement("div");
+      layer.className = `diagram-layer layer-${largeCat.id}`;
+      
+      const header = document.createElement("div");
+      header.className = "layer-header";
+      header.innerHTML = `<i data-lucide="${largeCat.icon || 'layers'}"></i><span>${largeCat.title}</span>`;
+      layer.appendChild(header);
+      
+      const content = document.createElement("div");
+      content.className = "layer-content";
+      
+      largeCat.subcategories.forEach(sub => {
+        const group = document.createElement("div");
+        group.className = "diagram-group";
+        
+        const groupTitle = document.createElement("div");
+        groupTitle.className = "diagram-group-title";
+        groupTitle.textContent = sub.title;
+        group.appendChild(groupTitle);
+        
+        const grid = document.createElement("div");
+        grid.className = "diagram-block-grid";
+        
+        sub.items.forEach(item => {
+          const block = document.createElement("div");
+          block.className = "diagram-block";
+          block.setAttribute("data-id", item.id);
+          block.textContent = item.title;
+          
+          block.addEventListener("click", () => {
+            this.selectArticle(item.id);
+          });
+          
+          grid.appendChild(block);
+        });
+        
+        group.appendChild(grid);
+        content.appendChild(group);
+      });
+      
+      layer.appendChild(content);
+      this.diagramWrapper.appendChild(layer);
     });
     
     if (window.lucide) {
@@ -246,6 +345,15 @@ class App {
         link.classList.add("active");
       } else {
         link.classList.remove("active");
+      }
+    });
+    
+    // Highlight corresponding block in the diagram view
+    document.querySelectorAll(".diagram-block").forEach(block => {
+      if (block.getAttribute("data-id") === smallId) {
+        block.classList.add("active");
+      } else {
+        block.classList.remove("active");
       }
     });
     

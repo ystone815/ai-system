@@ -49,6 +49,18 @@
       </div>
       
       <div class="header-right">
+        <!-- View Toggle Group -->
+        <div class="view-toggle-group">
+          <button id="view-toggle-list" class="btn-toggle active" title="리스트 뷰">
+            <i data-lucide="list"></i>
+            <span>리스트</span>
+          </button>
+          <button id="view-toggle-diagram" class="btn-toggle" title="다이어그램 뷰">
+            <i data-lucide="network"></i>
+            <span>다이어그램</span>
+          </button>
+        </div>
+
         <!-- Favorites toggle button -->
         <button id="favorites-toggle" class="btn-header-action" title="즐겨찾기 목록">
           <i data-lucide="bookmark"></i>
@@ -82,6 +94,19 @@
           <nav class="nav-tree" id="sub-category-list">
             <!-- Dynamic rendering -->
           </nav>
+        </div>
+      </aside>
+      
+      <!-- Side Navigation 3: Visual Block Diagram (좌측 40%) -->
+      <aside class="sidebar-diagram hidden" id="sidebar-diagram">
+        <div class="sidebar-diagram-header">
+          <h3>AI System Stack</h3>
+          <span class="category-subtext">Click blocks to explore details</span>
+        </div>
+        <div class="sidebar-diagram-content">
+          <div class="diagram-wrapper" id="diagram-wrapper">
+            <!-- Dynamic rendering -->
+          </div>
         </div>
       </aside>
       
