@@ -1,4 +1,4 @@
-// data.js - Knowledge Base Content Database
+// data.js - Knowledge Base Content Database (Expanded with Recent Trends)
 window.aiSystemData = [
   {
     id: "application",
@@ -25,9 +25,6 @@ window.aiSystemData = [
                   <li><strong>장애 복구 (Fault Tolerance):</strong> 거대한 클러스터 환경에서는 하드웨어 불량(GPU 고장, 네트워크 패킷 드롭)이 빈번하므로 체크포인팅(Checkpointing) 최적화가 필수적입니다.</li>
                 </ul>
               </div>
-
-              <h3>주요 학습 인프라 설계 고려사항</h3>
-              <p>최근의 LLM 사전 학습 설계는 하드웨어 인프라와 소프트웨어 프레임워크의 극단적인 조율을 필요로 합니다. 기가플롭스(TFLOPS) 당 전력 효율, 랙(Rack) 수준의 방열 구성, 그리고 복잡한 분산 병렬화 기법들이 조화를 이루어야 모델 수렴을 완료할 수 있습니다.</p>
             `,
             papers: [
               {
@@ -49,29 +46,25 @@ window.aiSystemData = [
               {
                 title: "Megatron-LM GitHub Repository",
                 link: "https://github.com/NVIDIA/Megatron-LM"
-              },
-              {
-                title: "NVIDIA Blog - Scalable LLM Training",
-                link: "https://developer.nvidia.com/blog/scaling-large-language-models/"
               }
             ]
           },
           {
             id: "finetuning",
             title: "Fine-tuning & Alignment",
-            summary: "지시어 학습(Instruction Tuning) 및 인간 피드백 기반 정렬(RLHF) 기법",
+            summary: "지시어 학습(Instruction Tuning) 및 인간 피드백 기반 정렬(RLHF/DPO) 기법",
             content: `
               <h3>미세 조정 및 인간 가치 정렬 (Alignment)</h3>
               <p>사전 학습된 베이스 모델을 특정 작업이나 대화형 에이전트로 동작하게 만들기 위한 과정입니다. 전체 가중치를 업데이트하는 Full Fine-tuning 외에, 자원의 한계를 극복하기 위해 파라미터 효율적 미세조정(PEFT) 기법이 많이 활용됩니다.</p>
               
               <div class="info-box">
                 <h4>주요 미세조정 및 정렬 기법</h4>
-                <ol>
-                  <li><strong>LoRA (Low-Rank Adaptation):</strong> 기존 가중치를 고정하고 가중치 행렬의 변화량(\\( \Delta W \\))을 두 개의 저차원 행렬(Low-rank matrices) $A$와 $B$로 분해하여 파라미터 수와 메모리 사용량을 대폭 절감합니다.</li>
+                <ul>
+                  <li><strong>LoRA (Low-Rank Adaptation):</strong> 기존 가중치를 고정하고 가중치 행렬의 변화량(\\( \Delta W \\))을 두 개의 저차원 행렬로 분해하여 파라미터 수와 메모리 사용량을 대폭 절감합니다.</li>
                   <li><strong>QLoRA (Quantized LoRA):</strong> 사전 학습 가중치를 4비트 NormalFloat(NF4) 형식으로 양자화하여 미세 조정에 필요한 메모리를 수 분의 일로 줄이면서도 성능을 유지합니다.</li>
-                  <li><strong>RLHF (Reinforcement Learning from Human Feedback):</strong> 보상 모델(Reward Model)을 구축하고 PPO(Proximal Policy Optimization) 알고리즘을 사용해 인간 선호도에 맞춰 모델을 조율합니다.</li>
-                  <li><strong>DPO (Direct Preference Optimization):</strong> 복잡한 강화 학습(RL) 과정 없이 선호 데이터셋에 직접 크로스 엔트로피 유사 손실 함수를 적용하여 빠르고 안정적인 정렬을 달성합니다.</li>
-                </ol>
+                  <li><strong>RLHF (Reinforcement Learning from Human Feedback):</strong> 보상 모델을 구축하고 PPO 알고리즘을 사용해 인간 선호도에 맞춰 모델을 조율합니다.</li>
+                  <li><strong>DPO (Direct Preference Optimization):</strong> 복잡한 강화 학습 과정 없이 선호 데이터셋에 직접 크로스 엔트로피 유사 손실 함수를 적용하여 빠르고 안정적인 정렬을 달성합니다.</li>
+                </ul>
               </div>
             `,
             papers: [
@@ -99,18 +92,18 @@ window.aiSystemData = [
           },
           {
             id: "inference_serving",
-            title: "Inference & Serving (추론 서비스)",
+            title: "Inference & Serving",
             summary: "대형 모델의 실시간 서빙 및 높은 처리량을 위한 아키텍처 최적화",
             content: `
               <h3>대규모 언어 모델 서빙 시스템의 핵심 과제</h3>
-              <p>LLM 추론은 자동회귀적(Autoregressive) 생성 모델 특성상 입력 토큰 크기에 비례하는 <strong>KV Cache(Key-Value Cache)</strong>의 저장이 필수적입니다. 이는 엄청난 양의 GPU 메모리를 차지하며, 유휴 메모리 단편화로 인해 실제 처리량(Throughput)을 제한하는 가장 큰 요인입니다.</p>
+              <p>LLM 추론은 자동회귀적(Autoregressive) 생성 모델 특성상 입력 토큰 크기에 비례하는 <strong>KV Cache(Key-Value Cache)</strong>의 저장이 필수적입니다. 이는 엄청난 양의 GPU 메모리를 차지하며, 유휴 메모리 단편화로 인해 실제 처리량을 제한하는 가장 큰 요인입니다.</p>
 
               <div class="info-box">
                 <h4>서빙 성능 극대화 솔루션</h4>
                 <ul>
-                  <li><strong>PagedAttention:</strong> 운영체제의 가상 메모리 페이징 기법에서 착안하여, KV Cache를 불연속적인 메모리 공간인 물리 블록으로 나누어 저장함으로써 메모리 낭비(단편화)를 거의 0%에 가깝게 해결합니다. (vLLM의 핵심 기술)</li>
-                  <li><strong>Continuous Batching (지속적 배칭):</strong> 요청별 완료 시점이 서로 다른 트래픽 특성을 처리하기 위해 토큰 수준에서 요청을 유동적으로 배치화(Batch)하여 GPU 연산 유휴 시간을 최소화합니다.</li>
-                  <li><strong>Speculative Decoding (투기적 디코딩):</strong> 작고 빠른 드래프트(Draft) 모델이 미리 여러 토큰을 초안으로 생성하고, 큰 타겟(Target) 모델이 이를 병렬 검증함으로써 추론 속도를 대폭 끌어올립니다.</li>
+                  <li><strong>PagedAttention:</strong> 운영체제의 가상 메모리 페이징 기법에서 착안하여, KV Cache를 불연속적인 메모리 공간인 물리 블록으로 나누어 저장함으로써 메모리 단편화를 거의 0%에 가깝게 해결합니다. (vLLM의 핵심 기술)</li>
+                  <li><strong>Continuous Batching (지속적 배칭):</strong> 요청별 완료 시점이 서로 다른 트래픽 특성을 처리하기 위해 토큰 수준에서 요청을 유동적으로 배치화하여 GPU 연산 유휴 시간을 최소화합니다.</li>
+                  <li><strong>Speculative Decoding (투기적 디코딩):</strong> 작고 빠른 드래프트 모델이 미리 여러 토큰을 초안으로 생성하고, 큰 타겟 모델이 이를 병렬 검증함으로써 추론 속도를 대폭 끌어올립니다.</li>
                 </ul>
               </div>
             `,
@@ -127,10 +120,84 @@ window.aiSystemData = [
               {
                 title: "vLLM GitHub project",
                 link: "https://github.com/vllm-project/vllm"
+              }
+            ]
+          },
+          {
+            id: "moe",
+            title: "Mixture of Experts (MoE)",
+            summary: "스파스 게이팅(Sparse Gating) 기반 조건부 연산 및 전문가 병렬화(EP) 기법",
+            content: `
+              <h3>Mixture of Experts (MoE) 시스템 개요</h3>
+              <p>모든 입력 토큰이 모델의 모든 파라미터를 통과하는 기존 Dense 모델과 달리, MoE(전문가 믹스) 아키텍처는 토큰마다 <strong>라우터(Router/Gating Network)</strong>가 가장 적합한 일부 <strong>전문가(Expert) 레이어</strong>만을 선택하여 연산을 실행합니다. 이를 통해 파라미터 수는 대폭 늘리면서 연산량(FLOPs)과 추론 비용을 획기적으로 낮춥니다.</p>
+
+              <div class="info-box">
+                <h4>MoE의 주요 하드웨어/소프트웨어 과제</h4>
+                <ul>
+                  <li><strong>전문가 병렬화 (Expert Parallelism - EP):</strong> 전문가 가중치가 여러 GPU에 분산되어 상주합니다. 따라서 토큰이 해당하는 전문가 GPU를 찾아가기 위해 대규모 <strong>All-to-All 통신</strong>이 빈번하게 발생하여 네트워크 병목을 야기합니다.</li>
+                  <li><strong>부하 균등화 (Load Balancing):</strong> 일부 특정 전문가에게만 연산 요청이 몰릴 경우 하드웨어 연산 유휴(Gossip/Skew)가 심화됩니다. 라우팅 손실(Routing Loss) 함수를 적용하여 토큰을 고르게 분배해야 합니다.</li>
+                </ul>
+              </div>
+            `,
+            papers: [
+              {
+                title: "Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer",
+                authors: "Shazeer et al.",
+                venue: "ICLR 2017",
+                link: "https://arxiv.org/abs/1701.06538",
+                note: "트랜스포머 레이어에 스파스 게이팅 MoE를 도입하는 초석을 다진 논문"
               },
               {
-                title: "NVIDIA TensorRT-LLM",
-                link: "https://github.com/NVIDIA/TensorRT-LLM"
+                title: "Mixtral of Experts",
+                authors: "Jiang et al.",
+                venue: "ArXiv 2024",
+                link: "https://arxiv.org/abs/2401.04088",
+                note: "상용 수준의 고성능 오픈소스 MoE 모델 설계 및 추론 속도 입증"
+              }
+            ],
+            resources: [
+              {
+                title: "DeepSpeed-MoE Tutorial",
+                link: "https://www.deepspeed.ai/tutorials/mixture-of-experts/"
+              }
+            ]
+          },
+          {
+            id: "long_context",
+            title: "Long Context Processing",
+            summary: "수백만 토큰의 문맥 창(Context Window) 처리를 위한 어텐션 및 통신 최적화",
+            content: `
+              <h3>초장거리 문맥 처리 시스템 최적화</h3>
+              <p>문맥 창(Context Window)의 한계를 확장하기 위한 트렌드로, 최근 모델들은 128K를 넘어 1M+ 이상의 시퀀스를 지원하고 있습니다. 시퀀스 길이가 늘어남에 따라 계산 복잡도가 제곱(\\( O(N^2) \\))으로 증가하며 대규모 GPU 메모리가 요구됩니다.</p>
+
+              <div class="info-box">
+                <h4>최신 시퀀스 확장 기술</h4>
+                <ul>
+                  <li><strong>FlashAttention-1/2/3:</strong> GPU SRAM의 고속 읽기/쓰기 특성을 최대한 활용하여 GPU 전역 메모리(HBM) 접근을 최소화하고, 타일링(Tiling) 기법을 통해 Attention Map을 조각내 계산함으로써 속도를 비약적으로 단축시킵니다. FlashAttention-3는 비동기 하드웨어 파이프라인 및 FP8 데이터 포맷에 최적화되었습니다.</li>
+                  <li><strong>Ring Attention:</strong> 시퀀스 차원을 분할하여 링 형태의 네트워크 위에서 GPU 간 토큰 조각을 Round-robin 방식으로 통신(Send/Receive)하며 어텐션을 계산합니다. 개별 GPU의 메모리 한계를 우회하여 사실상 무제한의 컨텍스트 학습을 실현합니다.</li>
+                </ul>
+              </div>
+            `,
+            papers: [
+              {
+                title: "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+                authors: "Tri Dao et al.",
+                venue: "NeurIPS 2022",
+                link: "https://arxiv.org/abs/2205.14135",
+                note: "SRAM과 HBM의 메모리 대역폭 한계를 극복한 IO-aware 어텐션 알고리즘 제안"
+              },
+              {
+                title: "Ring Attention with Blockwise Transformers for Near-Infinite Context",
+                authors: "Liu et al.",
+                venue: "ICLR 2024",
+                link: "https://arxiv.org/abs/2310.01889",
+                note: "GPU 링 네트워킹을 활용하여 시퀀스를 분산 연산하는 Ring Attention 최초 구현"
+              }
+            ],
+            resources: [
+              {
+                title: "FlashAttention GitHub project",
+                link: "https://github.com/Dao-AILab/flash-attention"
               }
             ]
           }
@@ -138,11 +205,11 @@ window.aiSystemData = [
       },
       {
         id: "distributed_training",
-        title: "Distributed Training (분산 학습)",
+        title: "Distributed Training",
         items: [
           {
             id: "parallelism",
-            title: "3D Parallelism (3차원 병렬화)",
+            title: "3D Parallelism",
             summary: "모델 스케일 한계를 깨기 위한 DP, TP, PP 병렬화 조합",
             content: `
               <h3>3차원 병렬 학습 구조 (3D Parallelism)</h3>
@@ -151,9 +218,9 @@ window.aiSystemData = [
               <div class="info-box">
                 <h4>3차원 분산 병렬 기법 개요</h4>
                 <ol>
-                  <li><strong>데이터 병렬화 (Data Parallelism - DP):</strong> 학습 데이터를 분할하여 여러 디바이스에 공급하고 각자 로컬 그래디언트를 계산한 후 전체 통신(All-Reduce)을 통해 동기화합니다. FSDP(Fully Sharded Data Parallel) 기법이 많이 활용됩니다.</li>
-                  <li><strong>텐서 병렬화 (Tensor Parallelism - TP):</strong> 단일 트랜스포머 레이어 내의 행렬 연산(예: Attention Projection, MLP)을 여러 GPU가 분할하여 실행합니다. GPU 장비 간 초고속 내부 대역폭(NVLink 등)이 수반되어야 효율이 납니다. (ex. Megatron-LM 방식)</li>
-                  <li><strong>파이프라인 병렬화 (Pipeline Parallelism - PP):</strong> 신경망 레이어들을 그룹화하여 서로 다른 머신에 분산하고 실행 흐름을 파이프라인 스테이지 형태로 관리합니다. 마이크로배치(Micro-batch) 스케줄링 기법(1F1B)을 통해 메모리 및 계산 유휴 시간(Bubble)을 극소화합니다.</li>
+                  <li><strong>데이터 병렬화 (DP):</strong> 학습 데이터를 분할하여 여러 디바이스에 공급하고 각자 로컬 그래디언트를 계산한 후 전체 통신(All-Reduce)을 통해 동기화합니다.</li>
+                  <li><strong>텐서 병렬화 (TP):</strong> 단일 트랜스포머 레이어 내의 행렬 연산을 여러 GPU가 분할하여 실행합니다. GPU 장비 간 초고속 내부 대역폭(NVLink 등)이 수반되어야 효율이 납니다.</li>
+                  <li><strong>파이프라인 병렬화 (PP):</strong> 신경망 레이어들을 그룹화하여 서로 다른 머신에 분산하고 실행 흐름을 파이프라인 스테이지 형태로 관리합니다. 마이크로배치 스케줄링 기법(1F1B)을 통해 버블 시간을 극소화합니다.</li>
                 </ol>
               </div>
             `,
@@ -164,13 +231,6 @@ window.aiSystemData = [
                 venue: "ArXiv 2019",
                 link: "https://arxiv.org/abs/1909.08053",
                 note: "NVIDIA에서 텐서 분할을 통한 트랜스포머 분산 학습 가이드라인을 정립한 고전적 논문"
-              },
-              {
-                title: "GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism",
-                authors: "Huang et al.",
-                venue: "NeurIPS 2019",
-                link: "https://arxiv.org/abs/1811.06965",
-                note: "모델 레이어를 순차적으로 쪼개 학습하는 파이프라인 병렬 아키텍처 제안"
               }
             ],
             resources: [
@@ -182,19 +242,18 @@ window.aiSystemData = [
           },
           {
             id: "zero_optimizer",
-            title: "ZeRO (Zero Redundancy Optimizer)",
+            title: "ZeRO Optimizer",
             summary: "데이터 병렬 학습 시 중복 가중치, 옵티마이저 상태 분할로 메모리 절감",
             content: `
               <h3>ZeRO (Zero Redundancy Optimizer) 원리</h3>
-              <p>기반 분산 학습(DP) 구조에서는 가중치(Parameters), 그래디언트(Gradients), 옵티마이저 상태(Optimizer States - ex. Adam의 모멘텀 및 분산)가 각 GPU에 중복되어 존재합니다. ZeRO는 이러한 중복성을 제거하여 메모리 효율을 극대화합니다.</p>
+              <p>기반 분산 학습(DP) 구조에서는 가중치(Parameters), 그래디언트(Gradients), 옵티마이저 상태(Optimizer States)가 각 GPU에 중복되어 존재합니다. ZeRO는 이러한 중복성을 제거하여 메모리 효율을 극대화합니다.</p>
               
               <div class="info-box">
                 <h4>ZeRO의 3가지 단계 (Stages)</h4>
                 <ul>
-                  <li><strong>ZeRO-1 (Optimizer State Partitioning):</strong> Adam 옵티마이저의 상태(기존 메모리의 최대 75% 점유)를 데이터 병렬 그룹 내의 GPU들에 골고루 파티셔닝합니다.</li>
-                  <li><strong>ZeRO-2 (Gradient Partitioning):</strong> 역전파 과정에서 산출되는 그래디언트까지 결합하여 파티셔닝함으로써 더 넓은 메모리를 보장합니다.</li>
-                  <li><strong>ZeRO-3 (Parameter Partitioning):</strong> 순전파 및 역전파 계산 과정에 필요한 순간에만 네트워크 통신을 통해 레이어의 가중치를 가져오고(All-Gather), 연산이 끝나면 가중치를 즉각 폐기(Reduce-Scatter)하는 방식으로 가중치 전체를 분할 보관합니다.</li>
-                  <li><strong>ZeRO-Offload / ZeRO-Infinity:</strong> 부족한 GPU 메모리를 CPU RAM 혹은 NVMe SSD 스토리지까지 확장하여 임시 데이터를 오프로드 처리합니다.</li>
+                  <li><strong>ZeRO-1:</strong> Adam 옵티마이저의 상태(기존 메모리의 최대 75% 점유)를 데이터 병렬 그룹 내의 GPU들에 골고루 파티셔닝합니다.</li>
+                  <li><strong>ZeRO-2:</strong> 역전파 과정에서 산출되는 그래디언트까지 결합하여 파티셔닝함으로써 더 넓은 메모리를 보장합니다.</li>
+                  <li><strong>ZeRO-3:</strong> 순전파 및 역전파 계산 과정에 필요한 순간에만 네트워크 통신을 통해 레이어의 가중치를 가져오고(All-Gather), 연산이 끝나면 가중치를 즉각 폐기(Reduce-Scatter)하는 방식으로 가중치 전체를 분할 보관합니다.</li>
                 </ul>
               </div>
             `,
@@ -232,60 +291,62 @@ window.aiSystemData = [
             title: "GPU Architecture",
             summary: "NVIDIA Hopper/Blackwell 가속기 아키텍처 및 텐서 코어(Tensor Cores) 구동 원리",
             content: `
-              <h3>현대 AI GPU 아키텍처</h3>
-              <p>현대 딥러닝 학습용 GPU(NVIDIA H100, B200 등)는 단순 다중 코어 그래픽 카드를 넘어 거대한 AI 행렬 연산 처리 전용의 매니코어 코프로세서입니다. 코어는 연산을 전담하는 SM(Streaming Multiprocessor) 단위로 설계되어 있습니다.</p>
+              <h3>NVIDIA GPU 아키텍처와 Blackwell의 진화</h3>
+              <p>NVIDIA Hopper(H100)를 이어 발표된 <strong>Blackwell(B200, GB200)</strong> 아키텍처는 AI 가속기 시장의 또 다른 이정표입니다. 단일 다이(Die)의 한계를 극복하기 위해 두 개의 다이를 고대역폭 다이 투 다이(Die-to-Die, 10TB/s) 링크로 연결하여 단일 가속기처럼 동작하게 설계한 칩렛(Chiplet) 구조를 채택했습니다.</p>
               
               <div class="info-box">
-                <h4>핵심 하드웨어 컴포넌트</h4>
+                <h4>최신 아키텍처 핵심 혁신 기술</h4>
                 <ul>
-                  <li><strong>Tensor Cores:</strong> 딥러닝의 핵심인 대량의 행렬 곱셈 누적(GEMM: \\( D = A \\times B + C \\)) 연산을 단일 클럭 사이클 수준에서 가속하는 전용 하드웨어 유닛입니다. FP16, BF16을 시작으로 최신 아키텍처에서는 FP8, FP4 데이터 포맷까지 가속합니다.</li>
-                  <li><strong>Transformer Engine:</strong> 모델 각 레이어별 동적 값 범위를 실시간 추적하여 연산 정확도 손실을 방지하고, 필요한 때에 적응형으로 FP8과 FP16 포맷을 변환하여 연산 유량을 극대화합니다.</li>
-                  <li><strong>SRAM / L2 Cache:</strong> SM 내부에 배치된 Shared Memory/Register File은 연산 성능을 뒷받침하는 핵심 장치로, 레지스터 전송 대역폭은 메모리 외부 대역폭보다 수십 배 빠릅니다.</li>
+                  <li><strong>2세대 Transformer Engine:</strong> 미세한 정밀도 분석을 통해 가중치와 그래디언트를 dynamic scaling함으로써 성능 저하 없이 <strong>FP4(4비트 부동소수점)</strong> 연산까지 Tensor Core에서 가속을 실현합니다.</li>
+                  <li><strong>GB200 NVL72 랙 구조:</strong> Grace CPU 36개와 Blackwell GPU 72개를 액체 냉각(Liquid Cooling) 기반 단일 캐비닛에 구성하고, NVLink 백플레인으로 단일 거대 GPU처럼 고속 연결하여 대규모 인프라 집적도를 극대화합니다.</li>
                 </ul>
               </div>
             `,
             papers: [
               {
-                title: "NVIDIA Hopper Architecture Whitepaper",
+                title: "NVIDIA Blackwell Architecture Whitepaper",
                 authors: "NVIDIA Corporation",
-                venue: "Technical Report 2022",
-                link: "https://resources.nvidia.com/en-us-tensor-core/gtc22-whitepaper-hopper",
-                note: "H100 GPU 아키텍처의 혁신 요소(DPX 명령어, Transformer Engine, HBM3) 설명"
+                venue: "Technical Report 2024",
+                link: "https://resources.nvidia.com/en-us-blackwell-architecture",
+                note: "FP4 연산, 2세대 Transformer Engine, 대칭 구조의 Blackwell 아키텍처 명세서"
               }
             ],
             resources: [
               {
-                title: "NVIDIA Developer Center",
-                link: "https://developer.nvidia.com"
+                title: "NVIDIA Blackwell Overview",
+                link: "https://www.nvidia.com/en-us/data-center/blackwell/"
               }
             ]
           },
           {
             id: "tpu_npu",
             title: "TPU & NPU Architecture",
-            summary: "Google TPU 및 모바일/서버 NPU에서의 Systolic Array 연산 개념",
+            summary: "Google TPU v6 (Trillium) 및 모바일/서버 NPU에서의 Systolic Array 연산 개념",
             content: `
-              <h3>Systolic Array와 NPU 설계</h3>
-              <p>GPU는 여전히 범용 목적(General Purpose) 연산 능력을 보존하고 있어 제어 로직과 대규모 레지스터가 필요합니다. 반면 구글의 TPU 및 많은 서버용 NPU는 AI 전용 ASIC(Application-Specific Integrated Circuit)으로, 대규모 행렬 곱셈 가속을 극대화하기 위해 <strong>시스톨릭 어레이(Systolic Array)</strong> 데이터 흐름 구조를 적용합니다.</p>
+              <h3>구글의 차세대 TPU v6 (Trillium) 및 NPU</h3>
+              <p>Google은 AI 전용 실리콘 시장을 이끌어오며 6세대 TPU 아키텍처인 <strong>Trillium (TPU v6)</strong>을 발표했습니다. 이전 TPU v5p 대비 칩당 컴퓨트 밀도가 4.7배 증가했으며, HBM 메모리 대역폭과 용량이 각각 2배씩 대폭 늘어났습니다.</p>
 
               <div class="info-box">
-                <h4>시스톨릭 어레이(Systolic Array)의 특징</h4>
-                <p>연산 장치(Processing Elements - PE)가 격자망 구조로 조밀하게 연결되어 있어, 하나의 연산 결과를 외부 메모리(DRAM)에 매번 읽고 쓰는 대신 이웃 PE로 바로 전달하여 파이프라인화합니다. 이는 레지스터 접근 대역폭 소모를 격감시켜 에너지 및 면적 효율을 비약적으로 끌어올립니다.</p>
+                <h4>Trillium의 하드웨어 설계 장점</h4>
+                <ul>
+                  <li><strong>Optical Circuit Switch (OCS):</strong> TPU 클러스터를 엮을 때 전기식 대신 빛 신호인 광 스위치를 사용하여 저비용, 고속, 재구성 가능한 저지연 인터커넥트를 보장합니다.</li>
+                  <li><strong>Matrix Multiply Unit (MXU):</strong> TPU의 핵심인 시스톨릭 어레이 MXU 연산 유닛과 강력한 백엔드 벡터 프로세서를 보존하고 JAX/XLA 컴파일러와 완벽 호환됩니다.</li>
+                </ul>
               </div>
             `,
             papers: [
               {
-                title: "In-Datacenter Performance Analysis of a Tensor Processing Unit",
-                authors: "Jouppi et al.",
-                venue: "ISCA 2017",
-                link: "https://arxiv.org/abs/1704.04760",
-                note: "구글 1세대 TPU 아키텍처의 역사적 하드웨어 분석 및 설계 방향 제시"
+                title: "Google TPU v6: Trillium Architecture and Scalability",
+                authors: "Google Technical Team",
+                venue: "Google Research 2024",
+                link: "https://cloud.google.com/blog/products/compute/introducing-trillium-our-6th-gen-tpu",
+                note: "구글의 6세대 Trillium TPU의 연산 가속, 메모리 인터포저, 3D 토러스 망 설명"
               }
             ],
             resources: [
               {
-                title: "Google Cloud TPU Documentation",
-                link: "https://cloud.google.com/tpu"
+                title: "Google Cloud Trillium Docs",
+                link: "https://cloud.google.com/tpu/docs/v6"
               }
             ]
           }
@@ -301,19 +362,16 @@ window.aiSystemData = [
             summary: "GPU 프로그래밍의 스레드 계층(Grid-Block-Thread)과 메모리 모델 계층",
             content: `
               <h3>CUDA 프로그래밍 모델의 기하학적 기초</h3>
-              <p>CUDA(Compute Unified Device Architecture)는 C/C++ 기반으로 GPU에서 병렬 실행될 함수(Kernel)를 정의합니다. 수만 개 스레드의 논리적 구도를 계층적으로 관리합니다.</p>
+              <p>CUDA는 C/C++ 기반으로 GPU에서 병렬 실행될 함수(Kernel)를 정의합니다. 수만 개 스레드의 논리적 구도를 계층적으로 관리합니다.</p>
               
               <div class="info-box">
                 <h4>스레드 조직 계층 (Thread Hierarchy)</h4>
                 <ul>
                   <li><strong>Thread Block:</strong> 동시에 실행될 스레드들의 묶음으로, 하나의 SM에 할당되어 하드웨어 자원을 공유하고 동기화할 수 있습니다. 1개 블록은 최대 1024개 스레드를 가질 수 있습니다.</li>
                   <li><strong>Grid:</strong> 스레드 블록들의 배열입니다. 커널을 런칭할 때 크기를 지정합니다.</li>
-                  <li><strong>Warp (워프):</strong> 실제 하드웨어가 실행하는 최소 스레드 배치(32개 스레드)입니다. 32개 스레드가 단일 명령어를 동시 실행하는 SIMT(Single Instruction, Multiple Threads) 방식을 준수합니다.</li>
+                  <li><strong>Warp (워프):</strong> 실제 하드웨어가 실행하는 최소 스레드 배치(32개 스레드)입니다. SIMT 방식을 준수합니다.</li>
                 </ul>
               </div>
-
-              <h3>메모리 계층과 최적화</h3>
-              <p>레지스터(Register) > 공유 메모리(Shared Memory) > 전역 메모리(Global Memory) 순으로 하드웨어 접근 지연시간이 늘어납니다. 따라서 전역 메모리 읽기를 여러 스레드가 동시에 결합 요청하는 Coalesced Access 기법과 공유 메모리를 활용한 타일링(Tiling) 기법이 CUDA 가속의 핵심입니다.</p>
             `,
             papers: [
               {
@@ -337,14 +395,14 @@ window.aiSystemData = [
             summary: "OpenAI의 Python 기반 GPU 프로그래밍 언어 및 컴파일러 아키텍처",
             content: `
               <h3>OpenAI Triton의 태동과 작동 원리</h3>
-              <p>기존 CUDA 프로그래밍은 뛰어난 성능을 보장하지만 C++ 기반 개발 난이도가 높고 최적의 레이아웃 튜닝이 매우 고단합니다. OpenAI Triton은 파이썬 코드를 컴파일하여 최적의 CUDA 커널을 직접 빌드해주는 DSL(Domain-Specific Language)입니다.</p>
+              <p>OpenAI Triton은 파이썬 코드를 컴파일하여 최적의 CUDA 커널을 직접 빌드해주는 DSL(Domain-Specific Language)입니다.</p>
               
               <div class="info-box">
                 <h4>Triton의 핵심 가치</h4>
                 <ul>
                   <li>스레드 병렬성, 블록 메모리 로딩, 동기화(Barrier) 등 복잡한 CUDA 세부 구현을 컴파일러가 자동 최적화합니다.</li>
                   <li>개발자는 복수 개의 원소 연산 대신 블록-수준 연산(Block-level operations)을 정의하는 파이썬 고수준 API에 집중할 수 있습니다.</li>
-                  <li>PyTorch Core 아키텍처(ex. PyTorch 2.0 Inductor)의 기본 백엔드로 채택되어 모델 실행 속도를 가속합니다.</li>
+                  <li>PyTorch Core 아키텍처(PyTorch 2.0+ Inductor)의 기본 백엔드로 채택되어 모델 실행 속도를 가속합니다.</li>
                 </ul>
               </div>
             `,
@@ -375,57 +433,56 @@ window.aiSystemData = [
     subcategories: [
       {
         id: "high_bandwidth",
-        title: "High-Bandwidth Memory",
+        title: "High-Bandwidth & Off-Chip",
         items: [
           {
             id: "hbm_architecture",
-            title: "HBM (High-Bandwidth Memory)",
-            summary: "실리콘 관통 전극(TSV) 기술 기반 초고대역폭 적층 메모리 기술 구조 및 흐름",
+            title: "HBM (HBM3e / HBM4)",
+            summary: "TSV 기술 기반 초고대역폭 적층 메모리 기술 및 차세대 HBM4 3D 적층 구조",
             content: `
-              <h3>HBM(고대역폭 메모리) 기술 원리</h3>
-              <p>AI 모델의 학습 속도가 하드웨어 연산 능력보다 데이터 전송 대역폭(Memory Bandwidth)의 제약을 많이 받는 **메모리 벽(Memory Wall)** 현상에 직면하면서 HBM이 현대 GPU 패키지의 표준으로 자리 잡았습니다.</p>
+              <h3>고대역폭 메모리(HBM)의 발전 및 HBM4 트렌드</h3>
+              <p>메모리 전송 속도가 하드웨어 연산 성능을 따라가지 못하는 **메모리 벽(Memory Wall)** 문제로 인해, HBM은 현대 AI 가속기 패키징의 필수 요소가 되었습니다. 현재 주류인 HBM3e를 넘어 **HBM4(6세대 HBM)**의 개발이 가속화되고 있습니다.</p>
               
               <div class="info-box">
-                <h4>HBM 설계적 강점</h4>
+                <h4>HBM4의 주요 변화와 구조적 특징</h4>
                 <ul>
-                  <li><strong>DRAM 적층 구조:</strong> 여러 개의 메모리 다이(Die)를 수직으로 쌓아 올린 후, <strong>TSV(Through-Silicon Via, 실리콘 관통 전극)</strong> 배선 통로로 전기적으로 연결합니다.</li>
-                  <li><strong>실리콘 인터포저:</strong> GPU 로직 다이와 HBM 적층 스택을 패키지 기판 위에 초미세 회로 선폭을 지원하는 인터포저(Interposer)를 사용하여 수평으로 나란히 배치합니다. (2.5D 패키징 기술인 TSMC CoWoS 등)</li>
-                  <li><strong>초광대역 인터페이스:</strong> 일반 DDR5 버스 폭(64비트)에 비해 HBM은 단일 스택 기준 1024비트 이상의 매우 넓은 데이터 버스 통로를 제공하므로, 수 TB/s 수준의 전송 효율을 달성합니다.</li>
+                  <li><strong>베이스 다이(Base Die) 변화:</strong> 기존 HBM의 베이스 다이는 일반 메모리 공정으로 제조되었으나, HBM4부터는 GPU와의 전기적 결합성 및 초고속 데이터 전송 속도를 맞추기 위해 TSMC, 삼성, 인텔의 **로직 선단 공정(Logic Process Foundry)**으로 직접 제조됩니다.</li>
+                  <li><strong>3D 패키징 및 2048비트 대역폭:</strong> 기존 1024비트의 데이터 인터페이스 버스 폭을 2배인 2048비트로 확장하여, 메모리 대역폭을 수 TB/s를 넘어 극대화합니다. 실리콘 인터포저 위에서의 2.5D 배치를 넘어 다이 다이렉트 3D 적층(3D Stacked) 구조 연구가 추진 중입니다.</li>
                 </ul>
               </div>
             `,
             papers: [
               {
-                title: "High-Bandwidth Memory (HBM) JEDEC Standard",
-                authors: "JEDEC Association",
-                venue: "Industry Standard",
-                link: "https://www.jedec.org/standards-documents/docs/jesd235",
-                note: "HBM의 물리 인터페이스와 제어 신호 방식에 대한 업계 공식 표준 문서"
+                title: "High-Bandwidth Memory (HBM) Technology Trends and HBM4 Standard",
+                authors: "JEDEC Standards Committee",
+                venue: "JEDEC Draft Report 2024",
+                link: "https://www.jedec.org",
+                note: "베이스 다이의 파운드리 통합 및 2048비트 버스 폭 인터페이스 규격 분석"
               }
             ],
             resources: [
               {
-                title: "SK hynix HBM Tech Blog",
-                link: "https://news.skhynix.co.kr/tag/HBM"
+                title: "SK hynix HBM Roadmap",
+                link: "https://news.skhynix.com"
               }
             ]
           },
           {
             id: "unified_memory",
-            title: "Unified Memory Architecture",
+            title: "Unified Memory",
             summary: "CPU 호스트 메모리와 GPU 로컬 메모리를 가상 주소 공간으로 묶는 아키텍처",
             content: `
               <h3>통합 메모리 아키텍처 (Unified Memory)</h3>
-              <p>과거에는 CPU 호스트 메모리의 데이터를 GPU로 전송할 때 개발자가 수동으로 <code>cudaMemcpy</code> 함수를 사용해 복제본을 주고받아야 했습니다. 이 복잡성과 실수를 낮추기 위해 통합 가상 메모리 주소(Unified Memory Architecture) 기술이 도입되었습니다.</p>
+              <p>통합 메모리 아키텍처는 CPU와 GPU가 동일한 가상 메모리 포인터 공간을 공유하여, 코딩 편의성이 증가하고 GPU 메모리 한계를 초과하는 모델 학습을 지원합니다.</p>
               
               <div class="info-box">
-                <h4>동작 기작 및 이점</h4>
-                <p>CPU와 GPU가 동일한 가상 메모리 포인터(Pointer) 공간을 공유합니다. 가동 중에 GPU가 아직 적재되지 않은 메모리 페이지에 액세스하면 하드웨어 수준의 <strong>Page Fault</strong>가 야기되고, PCIe 통로 혹은 고속 NVLink 링크를 통해 무대 뒤에서 해당 페이지를 로컬 GPU 물리 메모리로 실시간 마이그레이션(Page Migration) 처리합니다. 코딩 편의성이 비약적으로 증가하고 GPU 한계를 초과하는 모델 학습(OOM 방지)을 지원합니다.</p>
+                <h4>동작 기작</h4>
+                <p>가동 중에 GPU가 아직 로컬 HBM에 적재되지 않은 가상 메모리 주소에 액세스하면 하드웨어 수준의 Page Fault가 발생하고, 고속 링크를 통해 CPU 호스트 메모리의 물리 페이지를 GPU 메모리로 마이그레이션(Page Migration)합니다.</p>
               </div>
             `,
             papers: [
               {
-                title: "Unified Memory in CUDA",
+                title: "Unified Memory in CUDA Guide",
                 authors: "NVIDIA Developer Team",
                 venue: "Technical Guide",
                 link: "https://developer.nvidia.com/blog/unified-memory-cuda-beginners/",
@@ -435,7 +492,40 @@ window.aiSystemData = [
             resources: [
               {
                 title: "NVIDIA unified memory docs",
-                link: "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#um-unified-memory-programming-cl"
+                link: "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html"
+              }
+            ]
+          },
+          {
+            id: "cxl",
+            title: "CXL (Compute Express Link)",
+            summary: "PCIe 버스 기반의 메모리 풀링 및 CPU-GPU 간 캐시 일관성(Cache Coherency) 확보 기술",
+            content: `
+              <h3>CXL(Compute Express Link) 메모리 확장 기술</h3>
+              <p>대형 LLM 학습 및 그래프 학습에서 GPU HBM 메모리 용량 부족(OOM) 현상은 만성적인 문제이며, 초고가의 HBM 탑재 GPU 추가 구매는 인프라 비용 부담을 키웁니다. **CXL**은 PCIe 물리 인터페이스를 활용하여 서로 다른 디바이스 간에 저지연 캐시 일관적(Cache-Coherent) 메모리 공유 및 확장을 제공하는 개방형 업계 표준입니다.</p>
+
+              <div class="info-box">
+                <h4>CXL 프로토콜의 3가지 핵심 기둥</h4>
+                <ul>
+                  <li><strong>CXL.io:</strong> 장치 검색, 구성, 인터럽트 등 전통적인 PCIe와 동일한 필수 제어 프로토콜입니다.</li>
+                  <li><strong>CXL.cache:</strong> 가속기(예: GPU, NPU)가 CPU의 시스템 메모리를 직접 low-latency로 액세스 및 캐싱할 수 있게 해줍니다.</li>
+                  <li><strong>CXL.mem:</strong> CPU가 가속기나 별도의 CXL 메모리 확장 장치(Memory Expander)의 메모리 슬롯을 시스템 메모리 맵에 매핑하여 마치 자체 RAM처럼 사용(Memory Pooling)할 수 있게 지원합니다.</li>
+                </ul>
+              </div>
+            `,
+            papers: [
+              {
+                title: "CXL: Compute Express Link Consortium Specification 3.1",
+                authors: "CXL Consortium",
+                venue: "Consortium Standard 2023",
+                link: "https://www.computeexpresslink.org",
+                note: "멀티 호스트 메모리 풀링, 백플레인 패브릭 및 리소스 쉐어링 아키텍처 표준 기술"
+              }
+            ],
+            resources: [
+              {
+                title: "Intel CXL Resource Center",
+                link: "https://www.intel.com/content/www/us/en/developer/topic-technology/compute-express-link.html"
               }
             ]
           }
@@ -457,24 +547,24 @@ window.aiSystemData = [
             title: "NVLink / NVSwitch",
             summary: "단일 노드 내 다중 GPU 간 초고속 내부 링크 및 스위치 패브릭 시스템 구조",
             content: `
-              <h3>NVLink와 NVSwitch의 결합</h3>
-              <p>PCIe 슬롯을 통한 GPU 간 데이터 교환 성능(수십 GB/s)은 텐서 병렬 학습 시 엄청난 병목을 유발합니다. NVIDIA는 이를 우회하고자 고유의 점대점(Point-to-Point) 초고속 상호접속 링크인 **NVLink**를 탑재하였습니다.</p>
+              <h3>NVLink 및 NVSwitch의 결합</h3>
+              <p>NVIDIA GPU 간 전용 링크인 **NVLink**와 물리적 멀티 스위치 칩셋인 **NVSwitch**는 대규모 텐서 병렬 학습의 성공을 이끈 일등 공신입니다.</p>
               
               <div class="info-box">
-                <h4>핵심 통신 장비 원리</h4>
+                <h4>5세대 NVLink (Blackwell 탑재) 원리</h4>
                 <ul>
-                  <li><strong>NVLink:</strong> 메인보드의 PCIe 전송망 대신, 다이렉트 고대역폭 하드웨어 연결을 제공합니다. 칩셋 버전에 따라 양방향 수백 GB/s에서 TB/s 영역의 대역폭을 소유합니다.</li>
-                  <li><strong>NVSwitch:</strong> 다수의 GPU가 얽힐 때 격자형 케이블 배선이 난해해지는 것을 해결하는 물리 칩셋입니다. 모든 GPU가 단일 NVSwitch 패브릭을 공유하여 스파이더 형상으로 완전 대칭형 All-to-All 직접 통신이 가능하게 도와줍니다.</li>
+                  <li><strong>대역폭 극대화:</strong> Blackwell GPU 한 칩당 양방향 최대 1.8 TB/s의 메모리 전송 폭을 제공하여 Hopper(900 GB/s) 대비 2배의 통신 효율을 보장합니다.</li>
+                  <li><strong>NVLink Switch System (NVL72):</strong> 72개의 Blackwell GPU가 구동되는 랙 스택 내부를 구리 케이블 백플레인으로 통일 연결하여, 72개의 GPU가 완전 무손실로 데이터 공유 네트워크를 타는 초대형 가상 GPU 도메인을 수립합니다.</li>
                 </ul>
               </div>
             `,
             papers: [
               {
-                title: "NVIDIA DGX H100 System Architecture",
-                authors: "NVIDIA Developer Support",
-                venue: "System Whitepaper 2023",
-                link: "https://resources.nvidia.com/en-us-dgx-systems/dgx-h100-system-architecture-wp",
-                note: "8개 Hopper GPU가 NVSwitch를 타고 메모리를 공유해 단일 가상 GPU처럼 동작하는 패브릭 연결 디테일"
+                title: "NVIDIA DGX Blackwell Architecture Technical Brief",
+                authors: "NVIDIA",
+                venue: "Technical Document 2024",
+                link: "https://resources.nvidia.com",
+                note: "Grace CPU와 Blackwell GPU를 묶는 초고속 코퍼 패브릭 및 NVSwitch 랙 연결 분석"
               }
             ],
             resources: [
@@ -496,13 +586,13 @@ window.aiSystemData = [
             summary: "수천 대의 서버 장비를 노드로 묶어주는 초고속 저지연 네트워킹 기술 및 RDMA",
             content: `
               <h3>대규모 분산 클러스터용 저지연 네트워크</h3>
-              <p>서버 여러 대를 연결해 성능을 극대화하려면 전통적인 TCP/IP 기반 이더넷(Ethernet) 프로토콜은 커널 영역 오버헤드와 CPU 연산 소모가 너무 큽니다. 이에 대응하여 GPU가 호스트 OS 커널 간섭 없이 다른 컴퓨터의 메모리 주소 영역에 직접 접촉하는 <strong>RDMA (Remote Direct Memory Access)</strong> 네트워킹 기술이 절대적 지위를 가집니다.</p>
+              <p>서버 여러 대를 연결해 성능을 극대화하려면 GPU가 호스트 OS 커널 간섭 없이 다른 컴퓨터의 메모리 주소 영역에 직접 접촉하는 <strong>RDMA (Remote Direct Memory Access)</strong> 네트워킹 기술이 절대적 지위를 가집니다.</p>
               
               <div class="info-box">
                 <h4>RDMA 실현 2대 산맥</h4>
                 <ul>
-                  <li><strong>InfiniBand (인피니밴드):</strong> 최고 속도와 최저 지연시간을 구현하는 네트워크 아키텍처로, 하드웨어 전반에 흐름 제어가 기본 내장되어 무손실(Lossless) 데이터 보장을 약속합니다. NVIDIA Quantum 등 초고가 고성능 솔루션에 포진해 있습니다.</li>
-                  <li><strong>RoCE (RDMA over Converged Ethernet):</strong> 기존의 표준 이더넷 망 위에서 UDP/IP 헤더를 결합하여 RDMA를 실현하는 기술입니다. 인프라 설치 비용이 저렴하나 PFC(Priority Flow Control) 등을 통해 스위치 수준에서 정교하게 무손실망을 기획해야 전송 손실로 인한 성능 저하를 방지할 수 있습니다.</li>
+                  <li><strong>InfiniBand (인피니밴드):</strong> 최고 속도와 최저 지연시간을 구현하는 네트워크 아키텍처로, 하드웨어 전반에 흐름 제어가 기본 내장되어 무손실 데이터 보장을 약속합니다.</li>
+                  <li><strong>RoCE:</strong> 기존의 표준 이더넷 망 위에서 UDP/IP 헤더를 결합하여 RDMA를 실현하는 기술입니다. 인프라 설치 비용이 저렴하나 PFC 등을 통해 스위치 수준에서 정교하게 무손실망을 기획해야 합니다.</li>
                 </ul>
               </div>
             `,
@@ -519,6 +609,38 @@ window.aiSystemData = [
               {
                 title: "Mellanox (NVIDIA) Networking Academy",
                 link: "https://www.nvidia.com/en-us/networking/"
+              }
+            ]
+          },
+          {
+            id: "uec",
+            title: "Ultra Ethernet Consortium (UEC)",
+            summary: "차세대 대규모 AI 분산 환경용 개방형 표준 이더넷 아키텍처 및 UEC 전송 규격",
+            content: `
+              <h3>Ultra Ethernet Consortium (UEC)의 태동</h3>
+              <p>독점적이고 매우 고가인 InfiniBand 솔루션에 대응하기 위해 AMD, Intel, Meta, Microsoft, Broadcom 등 업계 거인들이 연합하여 출범시킨 단체가 **UEC**입니다. 기존 이더넷 프레임을 현대 대규모 AI 워크로드(분산 병렬 학습 등)에 극적으로 최적화하는 것을 목표로 삼고 있습니다.</p>
+
+              <div class="info-box">
+                <h4>UEC의 차별화된 핵심 해결 방안</h4>
+                <ul>
+                  <li><strong>새로운 UEP (Ultra Ethernet Protocol):</strong> 기존 TCP/IP의 무거운 헤더 규격을 경량화하고, 패킷 정렬 순서를 강제하지 않는 Out-of-Order 전송을 수용하여, 다중 경로(Multipathing)를 통한 초고속 저지연 처리를 가능케 합니다.</li>
+                  <li><strong>적응형 혼잡 제어 (Adaptive Congestion Control):</strong> AI 통신의 고질적 병목인 Incast(여러 단말이 수신자 하나에 동시에 패킷을 쏟아내는 현상) 부하를 스위치 하드웨어가 실시간 감지하여 미세 전송 제어를 수행합니다.</li>
+                </ul>
+              </div>
+            `,
+            papers: [
+              {
+                title: "Ultra Ethernet Specification 1.0 Overview",
+                authors: "Ultra Ethernet Consortium",
+                venue: "Consortium Specification 2024",
+                link: "https://ultraethernet.org",
+                note: "대규모 GPU 통신에 이더넷 물리 계층을 고성능 무손실화하기 위한 차세대 UEP 프로토콜 분석"
+              }
+            ],
+            resources: [
+              {
+                title: "Ultra Ethernet Consortium Official Web",
+                link: "https://ultraethernet.org"
               }
             ]
           }
@@ -541,11 +663,11 @@ window.aiSystemData = [
             summary: "호스트 CPU 및 시스템 RAM을 거치지 않는 데이터 저장 장치와 GPU 메모리 다이렉트 통신",
             content: `
               <h3>GPUDirect Storage (GDS)의 구동 구조</h3>
-              <p>기존 스토리지 스택에서는 NVMe SSD의 원본 데이터를 읽을 때, 우선 호스트 CPU 제어하에 시스템 페이지 캐시(DRAM)로 버퍼링한 뒤 이를 다시 PCIe 버스를 거쳐 GPU 바운드 버퍼 메모리로 재복사합니다. 이 과정은 귀중한 CPU 코어를 점유하며 PCIe 통로에서 전송 지연을 발생시킵니다.</p>
+              <p>GDS는 NVMe SSD 스토리지와 GPU 메모리 간에 CPU 시스템 메모리(호스트 메모리) 경유를 생략하고 PCIe 다이렉트 버스 라우팅으로 데이터를 직접 로딩합니다.</p>
               
               <div class="info-box">
                 <h4>GDS 혁신성</h4>
-                <p>NVMe SSD 스토리지와 GPU 메모리 간에 CPU 시스템 메모리(호스트 메모리) 경유를 생략하고 PCIe 다이렉트 버스 라우팅으로 바이트를 직접 로딩합니다. 이 다이렉트 전송(Direct Memory Access) 기법은 대형 LLM 체크포인트 로드나 대용량 학습 이미지를 인피딩(In-feeding)할 때 전송 통로 부하를 절반으로 해소하고 속도를 극대화합니다.</p>
+                <p>이 다이렉트 전송(Direct Memory Access) 기법은 대형 LLM 체크포인트 로드나 대용량 학습 이미지를 인피딩할 때 전송 통로 부하를 절반으로 해소하고 속도를 극대화합니다.</p>
               </div>
             `,
             papers: [
