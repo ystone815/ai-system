@@ -289,18 +289,27 @@ window.aiSystemData = [
           {
             id: "gpu_architecture",
             title: "GPU Architecture",
-            summary: "NVIDIA Hopper/Blackwell 가속기 아키텍처 및 텐서 코어(Tensor Cores) 구동 원리",
+            summary: "NVIDIA Hopper/Blackwell/Rubin 가속기 아키텍처 변천사 및 HBM4 통합 설계",
             content: `
-              <h3>NVIDIA GPU 아키텍처와 Blackwell의 진화</h3>
-              <p>NVIDIA Hopper(H100)를 이어 발표된 <strong>Blackwell(B200, GB200)</strong> 아키텍처는 AI 가속기 시장의 또 다른 이정표입니다. 단일 다이(Die)의 한계를 극복하기 위해 두 개의 다이를 고대역폭 다이 투 다이(Die-to-Die, 10TB/s) 링크로 연결하여 단일 가속기처럼 동작하게 설계한 칩렛(Chiplet) 구조를 채택했습니다.</p>
+              <h3>NVIDIA GPU 아키텍처 변천 (Hopper, Blackwell, Rubin)</h3>
+              <p>NVIDIA GPU 아키텍처는 세대를 거듭하며 학습 성능뿐만 아니라 추론 가속과 패키징 기술을 확장해 왔습니다.</p>
               
               <div class="info-box">
-                <h4>최신 아키텍처 핵심 혁신 기술</h4>
+                <h4>NVIDIA AI 가속기 로드맵 핵심 요약</h4>
                 <ul>
-                  <li><strong>2세대 Transformer Engine:</strong> 미세한 정밀도 분석을 통해 가중치와 그래디언트를 dynamic scaling함으로써 성능 저하 없이 <strong>FP4(4비트 부동소수점)</strong> 연산까지 Tensor Core에서 가속을 실현합니다.</li>
-                  <li><strong>GB200 NVL72 랙 구조:</strong> Grace CPU 36개와 Blackwell GPU 72개를 액체 냉각(Liquid Cooling) 기반 단일 캐비닛에 구성하고, NVLink 백플레인으로 단일 거대 GPU처럼 고속 연결하여 대규모 인프라 집적도를 극대화합니다.</li>
+                  <li><strong>Hopper (H100/H200):</strong> 트랜스포머 가속을 위한 1세대 Transformer Engine 도입, 메모리 벽 해소를 위해 HBM3(H200에서 HBM3e)를 통합 탑재했습니다.</li>
+                  <li><strong>Blackwell (B200/GB200):</strong> 두 개의 GPU 다이(Die)를 10TB/s 고속 버스 링크로 연결하는 칩렛(Chiplet) 구조와 FP4 연산을 가속하는 2세대 Transformer Engine을 탑재하고, 72개 GPU를 하나로 묶는 GB200 NVL72 수랭식 랙을 수립했습니다.</li>
+                  <li><strong>Vera Rubin (Rubin / Rubin Ultra):</strong> 2025~2026년 대규모 분산/에이전트 AI 가속을 위해 설계된 아키텍처로, TSMC 3nm 공정 및 2개의 연산 다이와 2개의 I/O 다이를 CoWoS-L 공정으로 결합하고 <strong>차세대 6세대 HBM4(초고속 적층 메모리)</strong>를 통합했습니다.</li>
                 </ul>
               </div>
+
+              <h3>Vera Rubin 아키텍처 핵심 사양</h3>
+              <p>Vera Rubin은 하드웨어와 전송 구조를 전면 최적화하여 초대규모 에이전트 AI 학습 및 추론 성능을 폭발적으로 증가시킵니다.</p>
+              <ul>
+                <li><strong>HBM4 규격 통합:</strong> 단일 Rubin GPU당 <strong>288 GB HBM4 메모리</strong>를 장착하고 <strong>최대 22 TB/s의 메모리 대역폭</strong>을 공급하여 메모리 병목을 완전 해결합니다. (HBM4 제조 공정은 TSMC 로직 파운드리를 탑재한 베이스 다이를 사용)</li>
+                <li><strong>연산 및 전송 성능:</strong> 단일 GPU 기준 <strong>50 PFLOPS의 FP4 추론 연산 속도</strong>를 자랑하며, 3세대 Transformer Engine을 통해 FP4에서 FP64에 이르는 멀티 정밀도 훈련을 완수합니다.</li>
+                <li><strong>Vera Rubin NVL72 랙 스케일:</strong> 36개의 Vera CPU와 72개의 Rubin GPU를 초고속 NVLink 5로 연결하여 단일 캐비닛 내에서 총 20.7 TB의 HBM4 메모리와 3,600 PFLOPS의 NVFP4 추론 성능을 실현합니다.</li>
+              </ul>
             `,
             papers: [
               {
@@ -309,12 +318,23 @@ window.aiSystemData = [
                 venue: "Technical Report 2024",
                 link: "https://resources.nvidia.com/en-us-blackwell-architecture",
                 note: "FP4 연산, 2세대 Transformer Engine, 대칭 구조의 Blackwell 아키텍처 명세서"
+              },
+              {
+                title: "NVIDIA Rubin Architecture Technical Announcement",
+                authors: "NVIDIA Corporation",
+                venue: "COMPUTEX Keynote 2024/2025",
+                link: "https://www.nvidia.com/en-us/about-nvidia/press-releases/",
+                note: "3nm 공정 설계, 288GB HBM4 통합 및 Vera Rubin NVL72 플랫폼 로드맵 발표 자료"
               }
             ],
             resources: [
               {
                 title: "NVIDIA Blackwell Overview",
                 link: "https://www.nvidia.com/en-us/data-center/blackwell/"
+              },
+              {
+                title: "NVIDIA Rubin Platform Details",
+                link: "https://developer.nvidia.com/blog/nvidia-rubin-platform-next-generation-ai-computing/"
               }
             ]
           },
