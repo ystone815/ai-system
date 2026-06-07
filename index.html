@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI System Knowledge Base</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="AI System Architecture Knowledge Base. Explores Applications, Compute, Memory, Networks, and Storage systems for Deep Learning.">
+  <meta name="keywords" content="AI System, GPU, TPU, CUDA, Triton, HBM, NVLink, RDMA, GPUDirect Storage, Distributed Training, Deep Learning Hardware">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons (CDN) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- MathJax for rendering equations in papers/notes -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <!-- App Container -->
+  <div class="app-layout">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <button id="mobile-menu-toggle" class="btn-icon" aria-label="메뉴 열기">
+          <i data-lucide="menu"></i>
+        </button>
+        <div class="logo">
+          <span class="logo-accent">AI</span> System Storage &amp; Compute Stack
+        </div>
+      </div>
+      
+      <!-- Search & Filters -->
+      <div class="header-center">
+        <div class="search-wrapper">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" id="search-input" placeholder="키워드, 논문, 기술명 검색..." autocomplete="off">
+          <button id="search-clear-btn" class="search-clear-btn hidden" aria-label="검색어 지우기">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <!-- Favorites toggle button -->
+        <button id="favorites-toggle" class="btn-header-action" title="즐겨찾기 목록">
+          <i data-lucide="bookmark"></i>
+          <span class="badge" id="favorites-count">0</span>
+        </button>
+        
+        <!-- Quick stats (number of categories/articles loaded) -->
+        <div class="header-info">
+          <span id="articles-count-badge">0 Articles</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main Workspace -->
+    <div class="app-workspace">
+      
+      <!-- Side Navigation 1: Large Categories (대분류) -->
+      <aside class="sidebar-large" id="sidebar-large">
+        <nav class="nav-large" id="large-category-list">
+          <!-- Dynamic rendering -->
+        </nav>
+      </aside>
+      
+      <!-- Side Navigation 2: Middle & Small Categories (중분류 & 소분류) -->
+      <aside class="sidebar-sub" id="sidebar-sub">
+        <div class="sidebar-sub-header">
+          <h3 id="selected-large-title">Category</h3>
+          <span class="category-subtext" id="selected-large-count">0 Topics</span>
+        </div>
+        <div class="sidebar-sub-content">
+          <nav class="nav-tree" id="sub-category-list">
+            <!-- Dynamic rendering -->
+          </nav>
+        </div>
+      </aside>
+      
+      <!-- Backdrop for mobile drawers -->
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+      
+      <!-- Main Content Pane -->
+      <main class="content-pane">
+        
+        <!-- Welcome Screen (Shown when no article selected) -->
+        <div id="welcome-screen" class="content-view">
+          <div class="welcome-container">
+            <div class="welcome-icon">
+              <i data-lucide="layers"></i>
+            </div>
+            <h1>AI System 지식 창고</h1>
+            <p>좌측에서 카테고리를 선택하여 AI System 설계, 컴퓨트, 메모리, 인터커넥트, 스토리지 스택에 대한 상세 개념 분석과 관련 중요 논문을 탐색해보세요.</p>
+            
+            <div class="welcome-grid">
+              <div class="welcome-card" onclick="app.selectCategory('application')">
+                <i data-lucide="layout"></i>
+                <h3>Application &amp; Workloads</h3>
+                <p>LLM 분산 학습, 사전 학습 병목 및 실시간 추론 최적화 기법</p>
+              </div>
+              <div class="welcome-card" onclick="app.selectCategory('compute')">
+                <i data-lucide="cpu"></i>
+                <h3>Compute &amp; Accelerators</h3>
+                <p>GPU/TPU 하드웨어 아키텍처 및 CUDA 스레드 제어 원리</p>
+              </div>
+              <div class="welcome-card" onclick="app.selectCategory('memory')">
+                <i data-lucide="database"></i>
+                <h3>Memory Systems</h3>
+                <p>TSV 적층형 HBM 반도체 기술 및 대역폭 병목 극복 전략</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Article View (Shown when an article is selected) -->
+        <div id="article-screen" class="content-view hidden">
+          <article class="article-container">
+            <!-- Breadcrumbs -->
+            <nav class="breadcrumbs">
+              <span id="breadcrumb-large">Large</span> &rsaquo;
+              <span id="breadcrumb-middle">Middle</span> &rsaquo;
+              <span id="breadcrumb-small" class="active">Small</span>
+            </nav>
+            
+            <!-- Article Header -->
+            <header class="article-header">
+              <div class="article-title-row">
+                <h1 id="article-title">Article Title</h1>
+                <button id="article-bookmark-btn" class="btn-bookmark" aria-label="즐겨찾기">
+                  <i data-lucide="bookmark"></i>
+                </button>
+              </div>
+              <p id="article-summary" class="article-summary-lead">Short summary goes here.</p>
+            </header>
+            
+            <!-- Divider -->
+            <div class="article-divider"></div>
+            
+            <!-- Article Body (Core Concept) -->
+            <div id="article-body" class="article-body">
+              <!-- Dynamically populated HTML -->
+            </div>
+            
+            <!-- Research Papers Section -->
+            <section id="article-papers-section" class="article-section">
+              <div class="section-title-row">
+                <i data-lucide="file-text" class="section-icon"></i>
+                <h2>핵심 연구 논문 (Research Papers)</h2>
+              </div>
+              <div id="article-papers-list" class="papers-grid">
+                <!-- Dynamically populated papers -->
+              </div>
+            </section>
+            
+            <!-- References / Resources Section -->
+            <section id="article-resources-section" class="article-section">
+              <div class="section-title-row">
+                <i data-lucide="link" class="section-icon"></i>
+                <h2>추가 공개 자료 &amp; 레퍼런스</h2>
+              </div>
+              <ul id="article-resources-list" class="resources-list">
+                <!-- Dynamically populated resources -->
+              </ul>
+            </section>
+          </article>
+        </div>
+        
+        <!-- Search Results Screen -->
+        <div id="search-screen" class="content-view hidden">
+          <div class="search-results-container">
+            <div class="search-results-header">
+              <h2>검색 결과: "<span id="search-query-text"></span>"</h2>
+              <p id="search-results-meta">총 0개의 항목을 찾았습니다.</p>
+            </div>
+            <div id="search-results-list" class="search-results-grid">
+              <!-- Dynamically populated search results -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- Favorites Screen -->
+        <div id="favorites-screen" class="content-view hidden">
+          <div class="favorites-container">
+            <div class="favorites-header">
+              <div class="title-row">
+                <i data-lucide="bookmark-check" class="fav-header-icon"></i>
+                <h2>내 즐겨찾기 목록</h2>
+              </div>
+              <p>저장해 둔 주요 핵심 아티클 목록입니다.</p>
+            </div>
+            <div id="favorites-list" class="favorites-grid">
+              <!-- Dynamically populated favorites -->
+            </div>
+          </div>
+        </div>
+        
+      </main>
+      
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

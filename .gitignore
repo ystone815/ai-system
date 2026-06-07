@@ -1,0 +1,6 @@
+# Ignore sensitive token files
+github token.txt.txt
+*.txt
+
+# Ignore logs
+*.log
