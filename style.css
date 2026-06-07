@@ -1259,3 +1259,15 @@ body.mode-diagram .sidebar-diagram {
   }
 }
 
+/* --- Inline SVG Diagrams --- */
+.svg-diagram {
+  margin: 24px 0;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  max-width: 650px;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+

@@ -106,6 +106,52 @@ window.aiSystemData = [
                   <li><strong>Speculative Decoding (투기적 디코딩):</strong> 작고 빠른 드래프트 모델이 미리 여러 토큰을 초안으로 생성하고, 큰 타겟 모델이 이를 병렬 검증함으로써 추론 속도를 대폭 끌어올립니다.</li>
                 </ul>
               </div>
+
+              <h4>PagedAttention 가상 메모리 매핑 아키텍처</h4>
+              <svg viewBox="0 0 500 180" width="100%" class="svg-diagram">
+                <style>
+                  .svg-bg { fill: #11131e; rx: 12px; }
+                  .v-page { fill: rgba(99, 102, 241, 0.15); stroke: #6366f1; stroke-width: 1.5; rx: 6px; }
+                  .p-block { fill: rgba(16, 185, 129, 0.15); stroke: #10b981; stroke-width: 1.5; rx: 6px; }
+                  .mapping-arrow { stroke: #a78bfa; stroke-width: 1.5; stroke-dasharray: 2; fill: none; }
+                  .marker-arrow { fill: #a78bfa; }
+                  .label { font-family: 'Inter', sans-serif; font-size: 10px; fill: #f3f4f6; text-anchor: middle; font-weight: bold; }
+                  .title-text { font-family: 'Inter', sans-serif; font-size: 11px; fill: #818cf8; font-weight: bold; }
+                </style>
+                <rect width="500" height="180" class="svg-bg" />
+                <defs>
+                  <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 2 L 10 5 L 0 8 z" class="marker-arrow" />
+                  </marker>
+                </defs>
+
+                <!-- Logical Page -->
+                <text x="110" y="25" class="title-text" text-anchor="middle">Logical KV Cache (Pages)</text>
+                <rect x="30" y="40" width="160" height="30" class="v-page" />
+                <text x="110" y="58" class="label">Logical Page 0 (Tokens 0-15)</text>
+                
+                <rect x="30" y="85" width="160" height="30" class="v-page" />
+                <text x="110" y="103" class="label">Logical Page 1 (Tokens 16-31)</text>
+
+                <!-- Page Table -->
+                <rect x="220" y="55" width="50" height="50" fill="#1e293b" stroke="#475569" stroke-width="1.5" rx="4" />
+                <text x="245" y="75" class="label" font-size="9px">Page Table</text>
+                <text x="245" y="90" class="label" font-size="8px" fill="#9ca3af">0 &rarr; Block 4</text>
+                <text x="245" y="98" class="label" font-size="8px" fill="#9ca3af">1 &rarr; Block 9</text>
+
+                <!-- Physical Memory -->
+                <text x="390" y="25" class="title-text" text-anchor="middle">Physical HBM (Blocks)</text>
+                
+                <rect x="310" y="40" width="160" height="30" class="p-block" />
+                <text x="390" y="58" class="label">Physical Block 4 (Non-contiguous)</text>
+                
+                <rect x="310" y="110" width="160" height="30" class="p-block" />
+                <text x="390" y="128" class="label">Physical Block 9 (Non-contiguous)</text>
+
+                <!-- Mapping Lines -->
+                <path d="M 190 55 L 220 70 M 270 70 L 310 55" class="mapping-arrow" marker-end="url(#arrow)" />
+                <path d="M 190 100 L 220 85 M 270 85 L 310 120" class="mapping-arrow" marker-end="url(#arrow)" />
+              </svg>
             `,
             papers: [
               {
@@ -308,8 +354,61 @@ window.aiSystemData = [
               <ul>
                 <li><strong>HBM4 규격 통합:</strong> 단일 Rubin GPU당 <strong>288 GB HBM4 메모리</strong>를 장착하고 <strong>최대 22 TB/s의 메모리 대역폭</strong>을 공급하여 메모리 병목을 완전 해결합니다. (HBM4 제조 공정은 TSMC 로직 파운드리를 탑재한 베이스 다이를 사용)</li>
                 <li><strong>연산 및 전송 성능:</strong> 단일 GPU 기준 <strong>50 PFLOPS의 FP4 추론 연산 속도</strong>를 자랑하며, 3세대 Transformer Engine을 통해 FP4에서 FP64에 이르는 멀티 정밀도 훈련을 완수합니다.</li>
-                <li><strong>Vera Rubin NVL72 랙 스케일:</strong> 36개의 Vera CPU와 72개의 Rubin GPU를 초고속 NVLink 5로 연결하여 단일 캐비닛 내에서 총 20.7 TB의 HBM4 메모리와 3,600 PFLOPS의 NVFP4 추론 성능을 실현합니다.</li>
+                <li><strong>Vera Rubin NVL72 랙 스케일:</strong> 36개의 Vera CPU와 72개의 Rubin GPU를 초고속 NVLink 5로 연결하여 단일 캐비닛 내에서 총 20.7 TB of HBM4 메모리와 3,600 PFLOPS의 NVFP4 추론 성능을 실현합니다.</li>
               </ul>
+
+              <h4>2.5D Chiplet GPU 패키징 구조 (Blackwell / Rubin CoWoS-L)</h4>
+              <svg viewBox="0 0 500 220" width="100%" class="svg-diagram">
+                <style>
+                  .svg-bg { fill: #11131e; rx: 12px; }
+                  .interposer { fill: #2c2f44; stroke: #4f46e5; stroke-width: 2; }
+                  .die { fill: #312e81; stroke: #6366f1; stroke-width: 2; }
+                  .hbm { fill: #064e3b; stroke: #10b981; stroke-width: 2; }
+                  .label { font-family: 'Inter', sans-serif; font-size: 11px; fill: #f3f4f6; text-anchor: middle; font-weight: bold; }
+                  .sublabel { font-family: 'Inter', sans-serif; font-size: 9px; fill: #9ca3af; text-anchor: middle; }
+                  .conn-line { stroke: #818cf8; stroke-dasharray: 3; stroke-width: 1.5; }
+                  .caption { font-family: 'Inter', sans-serif; font-size: 12px; fill: #818cf8; font-weight: bold; text-anchor: middle; }
+                </style>
+                <rect width="500" height="220" class="svg-bg" />
+                
+                <!-- Package Substrate -->
+                <rect x="30" y="150" width="440" height="25" rx="4" fill="#1e1b4b" stroke="#3730a3" stroke-width="2" />
+                <text x="250" y="167" class="label" fill="#a5b4fc">Package Substrate (Organic)</text>
+                
+                <!-- Silicon Interposer -->
+                <rect x="50" y="110" width="400" height="20" rx="3" class="interposer" />
+                <text x="250" y="124" class="label">Silicon Interposer (CoWoS / TSV)</text>
+                
+                <!-- HBM Stack Left -->
+                <rect x="70" y="40" width="80" height="55" rx="6" class="hbm" />
+                <text x="110" y="65" class="label">HBM Stack</text>
+                <text x="110" y="80" class="sublabel">(HBM3e / HBM4)</text>
+                
+                <!-- GPU Compute Die 1 -->
+                <rect x="170" y="40" width="75" height="55" rx="6" class="die" />
+                <text x="207" y="65" class="label">GPU Die 1</text>
+                <text x="207" y="80" class="sublabel">(Compute/SMs)</text>
+                
+                <!-- GPU Compute Die 2 -->
+                <rect x="255" y="40" width="75" height="55" rx="6" class="die" />
+                <text x="292" y="65" class="label">GPU Die 2</text>
+                <text x="292" y="80" class="sublabel">(Compute/SMs)</text>
+                
+                <!-- HBM Stack Right -->
+                <rect x="350" y="40" width="80" height="55" rx="6" class="hbm" />
+                <text x="390" y="65" class="label">HBM Stack</text>
+                <text x="390" y="80" class="sublabel">(HBM3e / HBM4)</text>
+                
+                <!-- Inter-Die Link (Blackwell/Rubin) -->
+                <path d="M 245 68 L 255 68" stroke="#f43f5e" stroke-width="4" stroke-linecap="round" />
+                <text x="250" y="25" class="caption" fill="#f43f5e">Ultra-High-Speed D2D Link (10 TB/s)</text>
+                
+                <!-- Connectors (TSVs/Microbumps) -->
+                <line x1="110" y1="95" x2="110" y2="110" class="conn-line" />
+                <line x1="207" y1="95" x2="207" y2="110" class="conn-line" />
+                <line x1="292" y1="95" x2="292" y2="110" class="conn-line" />
+                <line x1="390" y1="95" x2="390" y2="110" class="conn-line" />
+              </svg>
             `,
             papers: [
               {
