@@ -354,6 +354,8 @@ window.aiSystemData = [
 
               <h3>2. 2.5D 및 3D 칩렛(Chiplet) 실리콘 패키징 기술</h3>
               <p>Blackwell과 Rubin 아키텍처의 핵심은 단일 대형 실리콘 다이의 수율 한계를 극복하기 위해 복수의 다이를 정밀한 실리콘 인터포저 위에 얹어 연결하는 2.5D CoWoS-L(Chip-on-Wafer-on-Substrate with Local Silicon Interconnect) 공정입니다. 다이 간 데이터 인터커넥트(D2D Link)는 양방향 10 TB/s의 무손실 대역폭을 보장하여, 프로그래머는 이를 하나의 거대한 단일 GPU 다이로 인식하고 제어할 수 있습니다.</p>
+              <img src="images/blackwell_chiplet_design.png" alt="Blackwell Dual-Die Chiplet Design" />
+              <div class="image-caption">그림 1: Blackwell 2.5D CoWoS-L 칩렛 구조 및 D2D 링크 배선 아키텍처</div>
               
               <h4>2.5D Chiplet GPU 패키징 구조 (CoWoS-L)</h4>
               <svg viewBox="0 0 500 220" width="100%" class="svg-diagram">
@@ -419,6 +421,8 @@ window.aiSystemData = [
 
               <h3>6. HBM4 적층 설계와 2048-bit 메모리 인터페이스</h3>
               <p>차세대 메모리의 핵심인 HBM4는 기존 HBM3e가 가지고 있던 1024비트의 데이터 인터페이스 버스 폭을 **2048비트**로 두 배 확장하여 병목을 없앱니다. 또한, HBM 스택 아래에서 로직 컨트롤러 역할을 하는 베이스 다이(Base Die)가 일반 DRAM 공정이 아닌 TSMC/삼성의 <strong>최첨단 로직 파운드리 공정</strong>으로 대체 제조되어 GPU와의 신호 일관성과 전송 에너지 효율성을 30% 이상 극대화합니다.</p>
+              <img src="images/hbm4_stacked_memory.png" alt="HBM4 Stacked Memory Architecture" />
+              <div class="image-caption">그림 2: HBM4 3D 적층 DRAM 구조 및 2048-bit 로직 베이스 다이 결합 모델</div>
 
               <h3>7. 초고속 인터커넥트 기술: 5세대 NVLink와 NVSwitch</h3>
               <p>NVLink 기술은 멀티 노드 시스템 설계의 물리적 한계를 완전히 허물어줍니다. 5세대 NVLink는 단일 Blackwell GPU 기준 초당 1.8 TB/s의 전송 대역폭을 전달합니다. 이를 제어하는 NVSwitch 패브릭 칩은 내부적으로 dynamic routing을 지원하여 패킷 드롭이 전혀 발생하지 않는 non-blocking 스위칭 토폴로지를 구성합니다.</p>
@@ -449,6 +453,8 @@ window.aiSystemData = [
 
               <h3>13. 랙 스케일 아키텍처: GB200/GR200 NVL72 시스템 설계</h3>
               <p>랙 수준의 통합 컴퓨팅 시스템인 GB200 NVL72는 Grace CPU 36개와 Blackwell GPU 72개를 동축 구리 케이블(Copper Backplane) 백플레인으로 직접 설계했습니다. 구리 케이블 전송 방식은 광 인터커넥트 대비 전송 지연이 극히 짧고 전력 소모량이 거의 제로에 가까워, 72개의 GPU가 단 하나의 거대한 46.8 TB 대역을 갖춘 가상 메모리 단일 풀 GPU 클러스터 도메인으로 매끄럽게 엮이게 만듭니다.</p>
+              <img src="images/gb200_rack_system.png" alt="GB200 NVL72 Rack System" />
+              <div class="image-caption">그림 3: GB200 NVL72 액체 냉각 수랭 랙 및 고밀도 백플레인 결합 구성</div>
 
               <h3>14. Rubin Ultra 및 2nm 공정 기반 미래 아키텍처 전망</h3>
               <p>2026년 이후 출격을 예고한 Rubin 아키텍처는 TSMC의 차세대 3nm 또는 2nm 나노 공정 하에서 3차원 적층 가공을 완수합니다. 나노 공정 세대 교체를 통해 온칩 트랜지스터 밀도가 Hopper 대비 수십 배로 늘어남에 따라 하드웨어 가속 수준은 가파르게 성장을 지속할 것이며, 이는 거대 멀티모달 자율 에이전트 인공지능 시대를 견인하는 핵심 원동력이 될 것입니다.</p>
