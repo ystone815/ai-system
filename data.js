@@ -60,7 +60,7 @@ window.aiSystemData = [
               <div class="info-box">
                 <h4>주요 미세조정 및 정렬 기법</h4>
                 <ul>
-                  <li><strong>LoRA (Low-Rank Adaptation):</strong> 기존 가중치를 고정하고 가중치 행렬의 변화량(\\( \Delta W \\))을 두 개의 저차원 행렬로 분해하여 파라미터 수와 메모리 사용량을 대폭 절감합니다.</li>
+                  <li><strong>LoRA (Low-Rank Adaptation):</strong> 기존 가중치를 고정하고 가중치 행렬의 변화량(\\( \\Delta W \\))을 두 개의 저차원 행렬로 분해하여 파라미터 수와 메모리 사용량을 대폭 절감합니다.</li>
                   <li><strong>QLoRA (Quantized LoRA):</strong> 사전 학습 가중치를 4비트 NormalFloat(NF4) 형식으로 양자화하여 미세 조정에 필요한 메모리를 수 분의 일로 줄이면서도 성능을 유지합니다.</li>
                   <li><strong>RLHF (Reinforcement Learning from Human Feedback):</strong> 보상 모델을 구축하고 PPO 알고리즘을 사용해 인간 선호도에 맞춰 모델을 조율합니다.</li>
                   <li><strong>DPO (Direct Preference Optimization):</strong> 복잡한 강화 학습 과정 없이 선호 데이터셋에 직접 크로스 엔트로피 유사 손실 함수를 적용하여 빠르고 안정적인 정렬을 달성합니다.</li>
@@ -95,63 +95,239 @@ window.aiSystemData = [
             title: "Inference & Serving",
             summary: "대형 모델의 실시간 서빙 및 높은 처리량을 위한 아키텍처 최적화",
             content: `
-              <h3>대규모 언어 모델 서빙 시스템의 핵심 과제</h3>
-              <p>LLM 추론은 자동회귀적(Autoregressive) 생성 모델 특성상 입력 토큰 크기에 비례하는 <strong>KV Cache(Key-Value Cache)</strong>의 저장이 필수적입니다. 이는 엄청난 양의 GPU 메모리를 차지하며, 유휴 메모리 단편화로 인해 실제 처리량을 제한하는 가장 큰 요인입니다.</p>
+              <h3>대규모 언어 모델 서빙 시스템과 vLLM 핵심 아키텍처</h3>
+              <p>LLM 추론은 자동회귀적(Autoregressive) 생성 모델 특성상 입력 토큰 크기에 비례하는 <strong>KV Cache(Key-Value Cache)</strong>의 저장이 필수적입니다. 이는 엄청난 양의 GPU 메모리를 차지하며, 유휴 메모리 단편화로 인해 실제 처리량을 제한하는 가장 큰 요인입니다. 본 문서에서는 vLLM의 핵심 메커니즘과 현대적인 서빙 최적화 기법을 10개 섹션에 걸쳐 심층 분석합니다.</p>
 
-              <div class="info-box">
-                <h4>서빙 성능 극대화 솔루션</h4>
-                <ul>
-                  <li><strong>PagedAttention:</strong> 운영체제의 가상 메모리 페이징 기법에서 착안하여, KV Cache를 불연속적인 메모리 공간인 물리 블록으로 나누어 저장함으로써 메모리 단편화를 거의 0%에 가깝게 해결합니다. (vLLM의 핵심 기술)</li>
-                  <li><strong>Continuous Batching (지속적 배칭):</strong> 요청별 완료 시점이 서로 다른 트래픽 특성을 처리하기 위해 토큰 수준에서 요청을 유동적으로 배치화하여 GPU 연산 유휴 시간을 최소화합니다.</li>
-                  <li><strong>Speculative Decoding (투기적 디코딩):</strong> 작고 빠른 드래프트 모델이 미리 여러 토큰을 초안으로 생성하고, 큰 타겟 모델이 이를 병렬 검증함으로써 추론 속도를 대폭 끌어올립니다.</li>
-                </ul>
+              <!-- Web Image Integration Showcase -->
+              <div class="info-box" style="border-left: 4px solid #8b5cf6;">
+                <h4>💡 인터넷 이미지 동적 로딩 데모</h4>
+                <p>로컬 개발 환경의 보안 설정(Access Denied)으로 인해 CLI 환경에서 직접 다운로드가 가로막힐 수 있으나, 본 웹 애플리케이션은 브라우저를 통해 <strong>인터넷상의 이미지 CDN 주소를 직접 참조하여 실시간으로 이미지를 로딩</strong>하도록 구현되었습니다. 아래 로고는 공식 GitHub Repository의 미디킷에서 직접 로드한 실시간 이미지입니다.</p>
+                <img src="https://raw.githubusercontent.com/vllm-project/media-kit/main/vLLM-logo-horizontal.png" alt="vLLM Official Logo from GitHub" style="max-width: 250px; display: block; margin: 15px auto; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;" />
               </div>
 
-              <h4>PagedAttention 가상 메모리 매핑 아키텍처</h4>
-              <svg viewBox="0 0 500 180" width="100%" class="svg-diagram">
+              <h3>1. LLM 추론의 독특한 병목 특성 (Prefill vs Decode)</h3>
+              <p>LLM 추론 과정은 크게 입력 프롬프트를 한 번에 연산하여 최초 토큰을 만들어내는 <strong>Prefill(프리필) 단계</strong>와, 이후 자동회귀적으로 다음 토큰을 하나씩 생성하는 <strong>Decode(디코드) 단계</strong>로 구분됩니다.</p>
+              <ul>
+                <li><strong>Prefill 단계 (Compute-Bound):</strong> 다수의 입력 토큰을 동시에 병렬 처리하므로 연산 밀도가 매우 높습니다. GPU Tensor Core 성능을 최대로 가동하며, 연산 장치의 TFLOPs 성능이 속도를 결정합니다.</li>
+                <li><strong>Decode 단계 (Memory-Bound):</strong> 매 토큰을 생성할 때마다 이미 로드되었던 가중치 행렬과 이전 단계들의 KV 캐시를 GPU 전역 메모리(HBM)에서 고속 SRAM 캐시로 로딩해야 합니다. 이 단계에서는 연산 밀도(Arithmetic Intensity)가 극단적으로 저하되며, HBM의 메모리 대역폭(Bandwidth)이 병목 요인이 됩니다.</li>
+              </ul>
+              <p>추론 단계의 산술적 연산 밀도 식은 다음과 같습니다:</p>
+              <p style="text-align: center; margin: 12px 0;">
+                \\( \\text{Arithmetic Intensity} = \\frac{\\text{Total FLOPs}}{\\text{Total Memory Access (Bytes)}} \\approx \\frac{2 \\cdot P \\cdot 1}{\\text{Bytes Transfer (Weights + KV Cache)}} \\)
+              </p>
+              <p>여기서 \\( P \\)는 모델의 총 파라미터 수입니다. 파라미터 수에 비해 매 반복마다 발생하는 메모리 접근량이 매우 커서 메모리 대역폭 한계에 부딪히게 됩니다.</p>
+
+              <h4>LLM 추론 단계별 병목 특성 (Prefill vs Decode)</h4>
+              <svg viewBox="0 0 500 200" width="100%" class="svg-diagram">
                 <style>
                   .svg-bg { fill: #11131e; rx: 12px; }
-                  .v-page { fill: rgba(99, 102, 241, 0.15); stroke: #6366f1; stroke-width: 1.5; rx: 6px; }
-                  .p-block { fill: rgba(16, 185, 129, 0.15); stroke: #10b981; stroke-width: 1.5; rx: 6px; }
-                  .mapping-arrow { stroke: #a78bfa; stroke-width: 1.5; stroke-dasharray: 2; fill: none; }
-                  .marker-arrow { fill: #a78bfa; }
-                  .label { font-family: 'Inter', sans-serif; font-size: 10px; fill: #f3f4f6; text-anchor: middle; font-weight: bold; }
-                  .title-text { font-family: 'Inter', sans-serif; font-size: 11px; fill: #818cf8; font-weight: bold; }
+                  .highlight-blue { fill: #1e1b4b; stroke: #4f46e5; stroke-width: 2; rx: 8px; }
+                  .highlight-green { fill: #022c22; stroke: #10b981; stroke-width: 2; rx: 8px; }
+                  .label-title { font-family: 'Inter', sans-serif; font-size: 12px; fill: #f3f4f6; text-anchor: middle; font-weight: bold; }
+                  .label-body { font-family: 'Inter', sans-serif; font-size: 10px; fill: #cbd5e1; }
+                  .metric-label { font-family: 'Inter', sans-serif; font-size: 10px; fill: #94a3b8; font-weight: bold; }
+                  .metric-value-blue { font-family: 'Inter', sans-serif; font-size: 11px; fill: #818cf8; font-weight: bold; }
+                  .metric-value-green { font-family: 'Inter', sans-serif; font-size: 11px; fill: #34d399; font-weight: bold; }
+                  .arrow { stroke: #64748b; stroke-width: 2; fill: none; }
                 </style>
-                <rect width="500" height="180" class="svg-bg" />
-                <defs>
-                  <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 2 L 10 5 L 0 8 z" class="marker-arrow" />
-                  </marker>
-                </defs>
-
-                <!-- Logical Page -->
-                <text x="110" y="25" class="title-text" text-anchor="middle">Logical KV Cache (Pages)</text>
-                <rect x="30" y="40" width="160" height="30" class="v-page" />
-                <text x="110" y="58" class="label">Logical Page 0 (Tokens 0-15)</text>
+                <rect width="500" height="200" class="svg-bg" />
                 
-                <rect x="30" y="85" width="160" height="30" class="v-page" />
-                <text x="110" y="103" class="label">Logical Page 1 (Tokens 16-31)</text>
-
-                <!-- Page Table -->
-                <rect x="220" y="55" width="50" height="50" fill="#1e293b" stroke="#475569" stroke-width="1.5" rx="4" />
-                <text x="245" y="75" class="label" font-size="9px">Page Table</text>
-                <text x="245" y="90" class="label" font-size="8px" fill="#9ca3af">0 &rarr; Block 4</text>
-                <text x="245" y="98" class="label" font-size="8px" fill="#9ca3af">1 &rarr; Block 9</text>
-
-                <!-- Physical Memory -->
-                <text x="390" y="25" class="title-text" text-anchor="middle">Physical HBM (Blocks)</text>
+                <!-- Prefill Phase Box -->
+                <rect x="30" y="30" width="200" height="140" class="highlight-blue" />
+                <text x="130" y="52" class="label-title" fill="#a5b4fc">1. Prefill Phase (프리필)</text>
+                <text x="45" y="80" class="label-body">• 입력 프롬프트 전체 일괄 연산</text>
+                <text x="45" y="98" class="label-body">• 대규모 행렬 곱 병렬 수행</text>
+                <text x="45" y="116" class="label-body">• Tensor Core 최대 활용</text>
+                <line x1="45" y1="126" x2="215" y2="126" stroke="#312e81" stroke-width="1" />
+                <text x="45" y="148" class="metric-label">병목 요인:</text>
+                <text x="100" y="148" class="metric-value-blue">Compute-Bound</text>
                 
-                <rect x="310" y="40" width="160" height="30" class="p-block" />
-                <text x="390" y="58" class="label">Physical Block 4 (Non-contiguous)</text>
-                
-                <rect x="310" y="110" width="160" height="30" class="p-block" />
-                <text x="390" y="128" class="label">Physical Block 9 (Non-contiguous)</text>
+                <!-- Decode Phase Box -->
+                <rect x="270" y="30" width="200" height="140" class="highlight-green" />
+                <text x="370" y="52" class="label-title" fill="#a7f3d0">2. Decode Phase (디코드)</text>
+                <text x="285" y="80" class="label-body">• 토큰 순차적 1개씩 생성</text>
+                <text x="285" y="98" class="label-body">• 매 스텝 가중치&KV캐시 로딩</text>
+                <text x="285" y="116" class="label-body">• HBM 대역폭 고갈 유발</text>
+                <line x1="285" y1="126" x2="455" y2="126" stroke="#064e3b" stroke-width="1" />
+                <text x="285" y="148" class="metric-label">병목 요인:</text>
+                <text x="340" y="148" class="metric-value-green">Memory-Bound</text>
 
-                <!-- Mapping Lines -->
-                <path d="M 190 55 L 220 70 M 270 70 L 310 55" class="mapping-arrow" marker-end="url(#arrow)" />
-                <path d="M 190 100 L 220 85 M 270 85 L 310 120" class="mapping-arrow" marker-end="url(#arrow)" />
+                <!-- Connection Arrow -->
+                <path d="M 238 100 L 262 100" class="arrow" stroke-linecap="round" />
+                <polygon points="262,97 268,100 262,103" fill="#64748b" />
               </svg>
+
+              <h3>2. KV Cache와 메모리 단편화 문제</h3>
+              <p>Autoregressive 디코딩에서는 이전 단계에서 연산했던 Key와 Value 벡터들을 메모리에 캐싱(KV Cache)해두고 재사용함으로써 연산 낭비를 막습니다. KV 캐시 크기는 다음과 같이 누적 계산됩니다:</p>
+              <p style="text-align: center; margin: 12px 0;">
+                \\\\( \\\\text{Size}_{\\\\text{KVCache}} = 2 \\\\times n_{\\\\text{layers}} \\\\times n_{\\\\text{heads}} \\\\times d_{\\\\text{head}} \\\\times s \\\\times b_{\\\\text{bytes}} \\\\)
+              </p>
+              <p>여기서 \\\\( s \\\\)는 누적 시퀀스 길이, \\\\( b_{\\\\text{bytes}} \\\\)는 부동소수점 바이트 수(예: FP16은 2)입니다. 기존 서빙 시스템(예: HuggingFace Transformers)은 요청이 들어오면 해당 요청의 최대 생성 가능 길이(Max Sequence Length)에 맞추어 메모리를 미리 <strong>정적으로 할당</strong>합니다. 이로 인해 세 가지 메모리 낭비가 발생합니다:</p>
+              <ul>
+                <li><strong>내부 단편화 (Internal Fragmentation):</strong> 실제 출력 결과가 최대 시퀀스 길이보다 훨씬 짧게 종료될 때 남겨진 낭비 공간입니다.</li>
+                <li><strong>외부 단편화 (External Fragmentation):</strong> 다양한 길이의 요청이 서로 다른 타이밍에 생성 및 해제되면서 HBM 메모리 공간이 조각나 큰 덩어리의 새 할당을 방해하는 문제입니다.</li>
+                <li><strong>예약 낭비 (Reservation Waste):</strong> 앞으로 점진적으로 채워질 공간을 초기에 통째로 선점하여 생기는 유휴 자원 낭비입니다.</li>
+              </ul>
+
+              <h3>3. PagedAttention 핵심 메커니즘</h3>
+              <p>vLLM의 핵심 기술인 <strong>PagedAttention</strong>은 운영체제의 가상 메모리 페이징(Paging) 기법을 메모리 관리에 도용했습니다. KV 캐시를 연속된 실제 메모리 공간이 아닌, 고정된 크기(예: 16개 토큰)의 물리적 <strong>블록(Physical Block)</strong>으로 분할하여 HBM 내부의 불연속적인 영역에 분산 저장합니다.</p>
+              <p>가상의 페이지 테이블(Block Table)을 통해 논리적 토큰 주소를 물리적 메모리 블록 주소로 유연하게 매핑하므로 메모리 단편화를 거의 0%로 줄이고, 사용 가능한 배치 크기를 대폭 확대합니다.</p>
+              
+              <img src="images/vllm_paged_attention.png" alt="vLLM PagedAttention Memory Architecture" />
+              <div class="image-caption">그림 1: Logical KV Cache 페이지와 Physical HBM 블록의 가상 매핑 아키텍처</div>
+
+              <h4>PagedAttention 논리-물리 주소 매핑 구조</h4>
+              <svg viewBox="0 0 500 240" width="100%" class="svg-diagram">
+                <style>
+                  .svg-bg { fill: #11131e; rx: 12px; }
+                  .block-logical { fill: #1e1b4b; stroke: #4f46e5; stroke-width: 1.5; rx: 4px; }
+                  .block-physical { fill: #064e3b; stroke: #10b981; stroke-width: 1.5; rx: 4px; }
+                  .block-table { fill: #1f2937; stroke: #4b5563; stroke-width: 1.5; rx: 6px; }
+                  .text-main { font-family: 'Inter', sans-serif; font-size: 11px; fill: #f3f4f6; }
+                  .text-bold { font-family: 'Inter', sans-serif; font-size: 11px; fill: #f3f4f6; font-weight: bold; }
+                  .text-muted { font-family: 'Inter', sans-serif; font-size: 9px; fill: #9ca3af; text-anchor: middle; }
+                  .link-line { stroke: #f43f5e; stroke-width: 1.5; fill: none; stroke-dasharray: 2; }
+                  .map-arrow { stroke: #818cf8; stroke-width: 1.5; fill: none; }
+                </style>
+                <rect width="500" height="240" class="svg-bg" />
+                
+                <!-- Logical Blocks -->
+                <text x="80" y="30" class="text-bold" fill="#a5b4fc" text-anchor="middle">Logical KV Cache (논리 시퀀스)</text>
+                <rect x="30" y="50" width="100" height="40" class="block-logical" />
+                <text x="80" y="74" class="text-main" text-anchor: middle>Logical Block 0</text>
+                <text x="80" y="105" class="text-muted">Tokens 0~15</text>
+                
+                <rect x="30" y="130" width="100" height="40" class="block-logical" />
+                <text x="80" y="154" class="text-main" text-anchor: middle>Logical Block 1</text>
+                <text x="80" y="185" class="text-muted">Tokens 16~31</text>
+                
+                <!-- Block Table -->
+                <text x="250" y="30" class="text-bold" fill="#cbd5e1" text-anchor: middle>Block Table (페이지 테이블)</text>
+                <rect x="180" y="50" width="140" height="120" class="block-table" />
+                <text x="250" y="75" class="text-main" text-anchor: middle>L-Block 0 → P-Block 7</text>
+                <line x1="190" y1="90" x2="310" y2="90" stroke="#374151" stroke-width="1" />
+                <text x="250" y="115" class="text-main" text-anchor: middle>L-Block 1 → P-Block 3</text>
+                <line x1="190" y1="130" x2="310" y2="130" stroke="#374151" stroke-width="1" />
+                <text x="250" y="150" class="text-muted">Free blocks remaining: 98</text>
+
+                <!-- Physical GPU Memory (HBM) -->
+                <text x="420" y="30" class="text-bold" fill="#a7f3d0" text-anchor: middle>Physical HBM (비연속 메모리)</text>
+                
+                <!-- Physical Block 3 -->
+                <rect x="370" y="50" width="100" height="30" class="block-physical" />
+                <text x="420" y="68" class="text-main" text-anchor: middle>Physical Block 3</text>
+                
+                <!-- Empty Space -->
+                <rect x="370" y="90" width="100" height="25" fill="#1e293b" stroke="#334155" stroke-dasharray="3" rx="4" />
+                <text x="420" y="106" class="text-muted">Unallocated Block 4</text>
+                
+                <!-- Physical Block 7 -->
+                <rect x="370" y="125" width="100" height="30" class="block-physical" />
+                <text x="420" y="143" class="text-main" text-anchor: middle>Physical Block 7</text>
+                
+                <!-- Mapping Connectors -->
+                <path d="M 130 70 L 175 70" class="map-arrow" />
+                <path d="M 130 150 L 175 110" class="map-arrow" />
+                
+                <path d="M 320 75 C 345 75, 345 140, 365 140" class="link-line" />
+                <path d="M 320 115 C 345 115, 345 65, 365 65" class="link-line" />
+              </svg>
+
+              <h3>4. Continuous Batching (Iteration-level Scheduling)</h3>
+              <p>전통적인 정적 배칭(Static Batching) 방식은 배치 내부의 여러 요청 중 가장 긴 텍스트 생성이 끝날 때까지 다른 완료된 요청들도 GPU를 점유한 채 대기해야만 했습니다. 반면, <strong>Continuous Batching(또는 Iteration-level Batching)</strong> 기법은 한 토큰 생성 주기(Iteration)가 끝날 때마다 끝난 요청을 즉시 내보내고(Evict), 대기 중인 새 요청을 즉각 투입하여 연산 유휴(Idle) 시간과 레이턴시를 획기적으로 개선합니다.</p>
+              
+              <img src="images/continuous_batching.png" alt="Static vs Continuous Batching Timeline" />
+              <div class="image-caption">그림 2: Static Batching과 Continuous Batching의 요청 스케줄링 타임라인 비교</div>
+
+              <h3>5. vLLM의 메모리 공유 및 Copy-on-Write (COW)</h3>
+              <p>vLLM은 다중 출력 샘플링(Temperature Sampling 에서 n > 1)이나 빔 서치(Beam Search)와 같이 동일한 프롬프트로부터 파생된 여러 생성 시퀀스를 처리할 때 압도적인 메모리 효율성을 자랑합니다. 여러 시퀀스가 프롬프트 영역의 물리적 KV 캐시 블록을 <strong>참조 카운트(Reference Count)</strong>를 늘려 직접 공유하기 때문입니다.</p>
+              <p>이후 개별 시퀀스가 독자적인 새로운 토큰을 생성하여 쓰기(Write) 작업을 수행할 때만, 해당 블록의 사본을 새 물리 메모리에 복제한 뒤 포인터를 변경하는 <strong>Copy-on-Write (COW)</strong> 프로토콜이 작동합니다. 이를 통해 공통 영역의 중복 할당이 원천 차단됩니다.</p>
+
+              <h4>Copy-on-Write (COW) 물리 블록 분기 메커니즘</h4>
+              <svg viewBox="0 0 500 220" width="100%" class="svg-diagram">
+                <style>
+                  .svg-bg { fill: #11131e; rx: 12px; }
+                  .block-shared { fill: #1e1b4b; stroke: #8b5cf6; stroke-width: 2; rx: 4px; }
+                  .block-seqA { fill: #0f172a; stroke: #3b82f6; stroke-width: 1.5; rx: 4px; }
+                  .block-seqB { fill: #0f172a; stroke: #ec4899; stroke-width: 1.5; rx: 4px; }
+                  .text-main { font-family: 'Inter', sans-serif; font-size: 11px; fill: #f3f4f6; }
+                  .text-bold { font-family: 'Inter', sans-serif; font-size: 11px; fill: #f3f4f6; font-weight: bold; }
+                  .text-muted { font-family: 'Inter', sans-serif; font-size: 9px; fill: #9ca3af; text-anchor: middle; }
+                  .arrow-seqA { stroke: #3b82f6; stroke-width: 1.5; fill: none; }
+                  .arrow-seqB { stroke: #ec4899; stroke-width: 1.5; fill: none; }
+                </style>
+                <rect width="500" height="220" class="svg-bg" />
+                
+                <!-- Shared Prefix Blocks -->
+                <text x="110" y="30" class="text-bold" fill="#c084fc">Shared Prefix Blocks (공통 프롬프트)</text>
+                <rect x="30" y="50" width="160" height="40" class="block-shared" />
+                <text x="110" y="74" class="text-main" text-anchor: middle>Physical Block 10 (Ref: 2)</text>
+                <text x="110" y="105" class="text-muted">A와 B 시퀀스가 동일 프롬프트 공유</text>
+
+                <!-- Separator Line -->
+                <line x1="210" y1="20" x2="210" y2="200" stroke="#334155" stroke-dasharray="4" />
+
+                <!-- Branched Sequence A -->
+                <text x="340" y="30" class="text-bold" fill="#60a5fa">Sequence A (출력 A)</text>
+                <rect x="240" y="50" width="230" height="40" class="block-seqA" />
+                <text x="355" y="74" class="text-main" text-anchor: middle>Physical Block 11 (Ref: 1)</text>
+                <text x="355" y="105" class="text-muted" fill="#60a5fa">A의 고유 토큰 저장 블록</text>
+
+                <!-- Branched Sequence B (Copy-on-Write Triggered) -->
+                <text x="340" y="140" class="text-bold" fill="#f472b6">Sequence B (출력 B - COW 발생)</text>
+                <rect x="240" y="160" width="230" height="40" class="block-seqB" />
+                <text x="355" y="184" class="text-main" text-anchor: middle>Physical Block 12 (Ref: 1) [COW 복제]</text>
+                
+                <!-- Connector Arrows -->
+                <path d="M 190 70 C 215 70, 215 70, 235 70" class="arrow-seqA" />
+                <path d="M 190 70 C 215 70, 215 180, 235 180" class="arrow-seqB" />
+              </svg>
+
+              <h3>6. Automatic Prefix Caching (APC) 최적화</h3>
+              <p>vLLM의 <strong>Automatic Prefix Caching (APC)</strong> 기법은 시스템 프롬프트(System Prompt), 대화 포맷 템플릿, 그리고 RAG(Retrieval-Augmented Generation) 시스템의 컨텍스트 문서와 같이 요청 간에 빈번하게 중복되는 접두사(Prefix) 데이터의 연산 비용을 획기적으로 낮춥니다.</p>
+              <ul>
+                <li><strong>Prefix Hash Map 관리:</strong> 토큰 시퀀스의 특정 블록 경계를 기준으로 해시값(\\( \\text{Hash}(\\text{Tokens}) \\))을 연산하여 HBM 상의 물리 블록 주소와 매핑해 둡니다.</li>
+                <li><strong>Prefill 스킵:</strong> 새로 진입한 요청의 앞단 토큰들이 기존 해시 테이블의 엔트리와 완벽히 일치할 경우, 프리필 단계를 실행하지 않고 기 구축된 물리 블록의 KV 캐시를 즉시 포인터 매핑으로 재활용합니다.</li>
+              </ul>
+              <p>이를 통해 다중 턴 에이전트 대화 및 대용량 문서 질의 수행 시 TTFT(첫 번째 토큰 생성 시간)를 거의 0으로 수렴시킵니다.</p>
+
+              <h3>7. Chunked Prefill & Piggybacking</h3>
+              <p>대규모 프롬프트 입력이 들어오면 Prefill 연산 시간이 매우 길어져 기존에 열심히 토큰을 디코딩하고 있던(Decode) 요청들이 연산 자원을 선점당해 응답 지연(TPOT 스파이크)을 겪게 됩니다. vLLM은 이를 해소하고자 <strong>Chunked Prefill</strong>을 지원합니다.</p>
+              <p>길이가 긴 프롬프트 연산을 지정된 크기(예: 512 토큰 단위)의 청크로 쪼개어 여러 반복(Iteration) 주기에 걸쳐 분산 연산합니다. 이때 현재 진행 중인 디코드 요청들의 연산 단계 사이에 프리필 청크 연산을 슬쩍 얹어서 병행 처리(Piggybacking)함으로써, GPU의 하드웨어 컴퓨트 밀도를 고르게 채우고 디코드 지연 현상을 최소화합니다.</p>
+
+              <h3>8. vLLM의 분산 추론 가속 (Tensor & Pipeline Parallelism)</h3>
+              <p>단일 GPU HBM 용량을 아득히 초과하는 초대형 LLM(예: Llama 3 70B 이상)을 저지연으로 서빙하기 위해 vLLM은 고도화된 다중 GPU 분산 연산 기능을 지원합니다.</p>
+              <ul>
+                <li><strong>텐서 병렬화 (Tensor Parallelism - TP):</strong> Megatron-LM 방식으로 어텐션 투영(QKV Projection) 연산 행렬과 MLP 레이어의 연산 블록을 동일 노드 내 여러 GPU에 균등하게 슬라이싱하여 분산 처리합니다.</li>
+                <li><strong>파이프라인 병렬화 (Pipeline Parallelism - PP):</strong> 신경망 레이어 스택을 노드 단위로 그룹 지어 분산시키고 마이크로배치 스케줄링을 통해 레이어 간 활성화 값을 전달합니다.</li>
+                <li><strong>통신 최적화 커널:</strong> GPU 간의 고속 인터커넥트(NVLink)를 극대화하는 커스텀 비동기 올리듀스(All-Reduce) CUDA 커널을 직접 개발 및 적재하여 통신 레이턴시 병목을 극소화합니다.</li>
+              </ul>
+
+              <h3>9. vLLM 엔진 아키텍처 및 내부 컴포넌트</h3>
+              <p>vLLM의 핵심 연산 엔진 구조는 다음과 같은 핵심 컴포넌트들의 유기적 순환 호출로 구성됩니다:</p>
+              <ul>
+                <li><strong>LLMEngine / AsyncLLMEngine:</strong> 엔진의 진입점으로 요청을 수집하고 전체적인 조율을 관장합니다. Async Engine은 파이썬 비동기(asyncio) 태스크 큐를 기반으로 동시 다발적인 웹 API 요청을 효율적으로 정렬해 줍니다.</li>
+                <li><strong>Scheduler (스케줄러):</strong> 가용 GPU 물리 블록의 여유분을 끊임없이 모니터링하며 대기(Waiting), 실행(Running), 스왑(Swapped) 상태의 요청군을 반복 루프마다 최적으로 배치합니다.</li>
+                <li><strong>BlockManager (블록 관리자):</strong> 물리 메모리의 할당 상태 및 가상 메모리 테이블(Block Table)을 설계하고, Copy-on-Write 동작에 필요한 참조 계수 관리를 전담하는 핵심 컨트롤러입니다.</li>
+                <li><strong>CacheEngine (캐시 엔진):</strong> HBM의 물리 블록 관리 및 메모리 부족 시 데이터를 CPU의 시스템 메모리(DDR) 영역으로 임시 전송(Swap-out)하거나 다시 GPU로 복귀(Swap-in)시키는 CUDA DtoD 전송 동작을 실행합니다.</li>
+              </ul>
+
+              <h3>10. 추론 성능 지표 및 최적화 방법론 (Tuning)</h3>
+              <p>vLLM 기반 서빙의 최적화 수준을 평가하는 핵심 3대 지표는 다음과 같습니다:</p>
+              <ol>
+                <li><strong>TTFT (Time to First Token):</strong> 사용자가 질문을 던지고 첫 번째 응답 글자가 브라우저에 찍힐 때까지의 지연 시간 (Prefill 속도가 핵심).</li>
+                <li><strong>TPOT (Time Per Output Token):</strong> 첫 토큰 출력 이후 각 후속 글자들이 뱉어지는 평균 주기 (Decode 대역폭이 핵심).</li>
+                <li><strong>System Throughput (Tokens/sec):</strong> 전체 시스템이 초당 처리 완료하여 출력해 낸 모든 활성 사용자의 토큰 수의 합산 값.</li>
+              </ol>
+              <div class="info-box">
+                <h4>vLLM 튜닝 핵심 옵션 가이드</h4>
+                <ul>
+                  <li><code>--gpu-memory-utilization</code>: KV 캐시 할당용 GPU 가용 메모리 비중 (기본값 0.90, OOM 방지 및 성능 균형점 조율).</li>
+                  <li><code>--block-size</code>: PagedAttention의 단일 블록 당 할당 토큰 크기 (8 또는 16 권장, 작을수록 단편화 감소하나 관리 부하 증가).</li>
+                  <li><code>--enable-chunked-prefill</code>: 청크 프리필 활성화 여부 (실시간 멀티유저 서빙의 지연 시간 균일화에 필수적).</li>
+                  <li><code>--swap-space</code>: GPU 메모리 포화 시 CPU 메모리로 밀어낼 스왑 캐시 용량 지정 (단위: GB).</li>
+                </ul>
+              </div>
             `,
             papers: [
               {
@@ -160,12 +336,30 @@ window.aiSystemData = [
                 venue: "SOSP 2023",
                 link: "https://arxiv.org/abs/2309.06180",
                 note: "vLLM 엔진의 핵심 기술로 가상 메모리 페이징 기법을 결합하여 동적 KV 캐시를 최적화"
+              },
+              {
+                title: "Orca: A Distributed Serving System for Transformer-Based Generative Models",
+                authors: "Yu et al.",
+                venue: "SOSP 2022",
+                link: "https://www.usenix.org/conference/osdi22/presentation/yu",
+                note: "토큰 단위로 배치를 동적으로 재구성하는 Continuous Batching 개념을 최초 제시한 기념비적 연구"
+              },
+              {
+                title: "Fast Inference from Transformers via Speculative Decoding",
+                authors: "Leviathan et al.",
+                venue: "ICML 2023",
+                link: "https://arxiv.org/abs/2211.17192",
+                note: "Draft 모델과 Target 모델의 결합을 통한 투기적 디코딩 확률 검증 이론 제안"
               }
             ],
             resources: [
               {
                 title: "vLLM GitHub project",
                 link: "https://github.com/vllm-project/vllm"
+              },
+              {
+                title: "vLLM Official Documentation",
+                link: "https://docs.vllm.ai/"
               }
             ]
           },
@@ -440,7 +634,7 @@ window.aiSystemData = [
                 <h4>양자화 변환 수학식</h4>
                 <p>가중치 \\( W_{fp16} \\)를 4비트 포맷 \\( W_{fp4} \\)로 스케일링 팩터 \\( S \\)와 함께 매핑하는 기본 관계식:</p>
                 <p style="text-align: center; font-size: 1.15rem; margin: 12px 0;">
-                  \\( W_{fp16} \approx S \times W_{fp4} \\)
+                  \\( W_{fp16} \\approx S \\times W_{fp4} \\)
                 </p>
                 <p>여기서 \\( S \\)는 Outlier(극단치)의 영향을 고르게 분산하여 양자화에 따른 정확도(Accuracy) 저하를 방지합니다.</p>
               </div>
