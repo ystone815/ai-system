@@ -32,6 +32,10 @@ class App {
     // DOM Elements - Article TOC
     this.tocListItems = document.getElementById("toc-list-items");
     
+    // Resizable Split-pane Elements
+    this.sidebarTreemap = document.getElementById("sidebar-treemap");
+    this.resizeDivider = document.getElementById("resize-divider");
+    
     this.init();
   }
   
@@ -40,12 +44,54 @@ class App {
     this.bindEvents();
     this.updateFavoritesCount();
     this.updateArticlesCountBadge();
+    this.setupResizableSplit();
     
     // Show welcome screen initially
     this.showScreen("welcome");
     
     // Setup Scroll Spy for Table of Contents
     this.setupScrollSpy();
+  }
+  
+  setupResizableSplit() {
+    if (!this.resizeDivider || !this.sidebarTreemap) return;
+    
+    let isDragging = false;
+    
+    this.resizeDivider.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      document.body.classList.add("resizing");
+      this.resizeDivider.classList.add("active");
+      e.preventDefault();
+    });
+    
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      
+      const workspace = document.querySelector(".app-workspace");
+      if (!workspace) return;
+      
+      const workspaceWidth = workspace.clientWidth;
+      const rect = workspace.getBoundingClientRect();
+      const relativeX = e.clientX - rect.left;
+      
+      // Calculate percentage width of left pane
+      let percentage = (relativeX / workspaceWidth) * 100;
+      
+      // Enforce bounds: min 20%, max 70%
+      if (percentage < 20) percentage = 20;
+      if (percentage > 70) percentage = 70;
+      
+      this.sidebarTreemap.style.width = `${percentage}%`;
+    });
+    
+    window.addEventListener("mouseup", () => {
+      if (isDragging) {
+        isDragging = false;
+        document.body.classList.remove("resizing");
+        this.resizeDivider.classList.remove("active");
+      }
+    });
   }
   
   // Event Bindings

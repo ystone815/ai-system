@@ -502,7 +502,7 @@ code {
 .content-view {
   padding: 40px;
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   animation: fadeIn var(--transition-normal) forwards;
 }
@@ -1278,14 +1278,49 @@ body.mode-diagram .sidebar-diagram {
 /* --- 1. Treemap Sidebar (Left 40% Width) --- */
 .sidebar-treemap {
   width: 40%;
-  min-width: 360px;
-  max-width: 650px;
+  min-width: 280px;
+  max-width: 80%;
   background-color: var(--bg-sidebar-large);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   z-index: 10;
+  position: relative; /* Local containment for popup modal */
+}
+
+/* --- Resizable Split-pane Divider --- */
+.resize-divider {
+  width: 6px;
+  background-color: transparent;
+  cursor: col-resize;
+  position: relative;
+  z-index: 100;
+  transition: background-color var(--transition-fast);
+  flex-shrink: 0;
+  border-left: 1px solid var(--border-color);
+  margin-left: -3px; /* Center alignment */
+  margin-right: -3px;
+}
+
+.resize-divider:hover,
+.resize-divider.active {
+  background-color: var(--accent-primary);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+body.resizing {
+  cursor: col-resize;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body.resizing * {
+  pointer-events: none !important; /* Disables drag-hover issues during resizing */
+}
+
+body.resizing .resize-divider {
+  pointer-events: auto !important;
 }
 
 .sidebar-treemap-header {
@@ -1442,20 +1477,21 @@ body.mode-diagram .sidebar-diagram {
   border-color: rgba(251, 146, 60, 0.15);
 }
 
-/* --- 2. Glassmorphism Popup Modal --- */
+/* --- 2. Glassmorphism Popup Modal (Localized inside Left Pane) --- */
 .modal-overlay {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(4, 5, 8, 0.75);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(9, 10, 16, 0.85); /* Darker backdrop to hide treemap */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 16px;
+  z-index: 100;
   animation: fadeInOverlay var(--transition-fast) forwards;
 }
 
@@ -1467,11 +1503,12 @@ body.mode-diagram .sidebar-diagram {
 .modal-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 20px;
-  width: 90%;
-  max-width: 500px;
+  border-radius: 16px;
+  width: 100%;
+  height: 100%;
+  max-width: none;
   box-shadow: var(--glass-shadow);
-  padding: 28px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   animation: slideInModal var(--transition-normal) cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -1480,7 +1517,7 @@ body.mode-diagram .sidebar-diagram {
 @keyframes slideInModal {
   from {
     opacity: 0;
-    transform: translateY(15px) scale(0.98);
+    transform: translateY(12px) scale(0.98);
   }
   to {
     opacity: 1;

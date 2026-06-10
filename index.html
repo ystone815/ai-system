@@ -76,7 +76,31 @@
             <!-- Dynamically populated stock-market style treemap blocks -->
           </div>
         </div>
+
+        <!-- Localized Modal Popup (Subcategory Detail / 소분류) -->
+        <div class="modal-overlay hidden" id="subcategory-modal">
+          <div class="modal-card">
+            <div class="modal-header">
+              <div class="modal-title-group">
+                <span class="modal-large-badge" id="modal-large-badge">Application</span>
+                <h2 id="modal-title">LLM &amp; Generative AI</h2>
+              </div>
+              <button class="modal-close-btn" id="modal-close-btn" aria-label="닫기">
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p class="modal-desc">아래의 핵심 소분류 주제 중 탐색할 항목을 선택해 주세요.</p>
+              <div class="modal-item-list" id="modal-item-list">
+                <!-- Dynamically populated small category list items -->
+              </div>
+            </div>
+          </div>
+        </div>
       </aside>
+
+      <!-- Resize Divider (Vertical Resize Handler) -->
+      <div class="resize-divider" id="resize-divider"></div>
       
       <!-- Backdrop for mobile drawers -->
       <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -211,27 +235,6 @@
         
       </main>
       
-    </div>
-  </div>
-
-  <!-- Modal Popup (Subcategory Detail / 소분류) -->
-  <div class="modal-overlay hidden" id="subcategory-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <span class="modal-large-badge" id="modal-large-badge">Application</span>
-          <h2 id="modal-title">LLM &amp; Generative AI</h2>
-        </div>
-        <button class="modal-close-btn" id="modal-close-btn" aria-label="닫기">
-          <i data-lucide="x"></i>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-desc">아래의 핵심 소분류 주제 중 탐색할 항목을 선택해 주세요.</p>
-        <div class="modal-item-list" id="modal-item-list">
-          <!-- Dynamically populated small category list items -->
-        </div>
-      </div>
     </div>
   </div>
 
