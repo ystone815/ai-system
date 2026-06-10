@@ -1800,3 +1800,141 @@ body.resizing .resize-divider {
   font-weight: 500;
 }
 
+/* --- Welcome Split-Pane Layout --- */
+.welcome-layout {
+  display: flex;
+  gap: 32px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.welcome-main {
+  flex: 1.25;
+  min-width: 0;
+}
+
+.welcome-updates-sidebar {
+  flex: 0.75;
+  min-width: 310px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.updates-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+}
+
+.updates-header-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--accent-primary);
+}
+
+.updates-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.updates-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  max-height: 520px;
+  padding-right: 6px;
+}
+
+.update-item {
+  display: flex;
+  gap: 14px;
+  position: relative;
+}
+
+/* Timeline line */
+.update-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 18px;
+  bottom: -22px;
+  width: 2px;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.update-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--tag-color, var(--accent-primary));
+  border: 3px solid var(--bg-card);
+  flex-shrink: 0;
+  z-index: 1;
+  margin-top: 3px;
+  box-shadow: 0 0 8px var(--tag-color, var(--accent-primary));
+}
+
+.update-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.update-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.update-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.update-date {
+  font-size: 0.72rem;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.update-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+.update-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+/* Responsive Welcome Updates Screen */
+@media (max-width: 1000px) {
+  .welcome-layout {
+    flex-direction: column;
+    gap: 32px;
+  }
+  
+  .welcome-updates-sidebar {
+    min-width: unset;
+    width: 100%;
+  }
+}
+

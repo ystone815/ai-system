@@ -110,28 +110,109 @@
         
         <!-- Welcome Screen (Shown when no article selected) -->
         <div id="welcome-screen" class="content-view">
-          <div class="welcome-container">
-            <div class="welcome-icon">
-              <i data-lucide="layers"></i>
+          <div class="welcome-layout">
+            <!-- Left Side: Welcome Description & Grid -->
+            <div class="welcome-main">
+              <div class="welcome-container">
+                <div class="welcome-icon">
+                  <i data-lucide="layers"></i>
+                </div>
+                <h1>AI System 지식 창고</h1>
+                <p>좌측 트리맵에서 카테고리를 선택해 AI System 설계, 컴퓨트, 메모리, 인터커넥트, 스토리지 스택에 대한 상세 개념 분석과 관련 중요 논문을 탐색해보세요.</p>
+                
+                <div class="welcome-grid">
+                  <div class="welcome-card" id="welcome-card-app">
+                    <i data-lucide="layout"></i>
+                    <h3>Application &amp; Workloads</h3>
+                    <p>LLM 분산 학습, 사전 학습 병목 및 실시간 추론 최적화 기법</p>
+                  </div>
+                  <div class="welcome-card" id="welcome-card-compute">
+                    <i data-lucide="cpu"></i>
+                    <h3>Compute &amp; Accelerators</h3>
+                    <p>GPU/TPU 하드웨어 아키텍처 및 CUDA 스레드 제어 원리</p>
+                  </div>
+                  <div class="welcome-card" id="welcome-card-memory">
+                    <i data-lucide="database"></i>
+                    <h3>Memory Systems</h3>
+                    <p>TSV 적층형 HBM 반도체 기술 및 대역폭 병목 극복 전략</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h1>AI System 지식 창고</h1>
-            <p>좌측 트리맵에서 카테고리를 선택해 AI System 설계, 컴퓨트, 메모리, 인터커넥트, 스토리지 스택에 대한 상세 개념 분석과 관련 중요 논문을 탐색해보세요.</p>
             
-            <div class="welcome-grid">
-              <div class="welcome-card" id="welcome-card-app">
-                <i data-lucide="layout"></i>
-                <h3>Application &amp; Workloads</h3>
-                <p>LLM 분산 학습, 사전 학습 병목 및 실시간 추론 최적화 기법</p>
+            <!-- Right Side: Recent Updates List -->
+            <div class="welcome-updates-sidebar">
+              <div class="updates-header">
+                <i data-lucide="history" class="updates-header-icon"></i>
+                <h2>최근 업데이트 내역</h2>
               </div>
-              <div class="welcome-card" id="welcome-card-compute">
-                <i data-lucide="cpu"></i>
-                <h3>Compute &amp; Accelerators</h3>
-                <p>GPU/TPU 하드웨어 아키텍처 및 CUDA 스레드 제어 원리</p>
-              </div>
-              <div class="welcome-card" id="welcome-card-memory">
-                <i data-lucide="database"></i>
-                <h3>Memory Systems</h3>
-                <p>TSV 적층형 HBM 반도체 기술 및 대역폭 병목 극복 전략</p>
+              <div class="updates-timeline">
+                
+                <!-- Update 1 -->
+                <div class="update-item">
+                  <div class="update-dot" style="--tag-color: #a78bfa;"></div>
+                  <div class="update-content">
+                    <div class="update-meta">
+                      <span class="update-tag" style="color: #a78bfa;">Content</span>
+                      <span class="update-date">2026.06.10</span>
+                    </div>
+                    <div class="update-title">vLLM &amp; 추론 서빙 아티클 심층 보강</div>
+                    <div class="update-desc">PagedAttention, Continuous Batching, Copy-on-Write, APC 등 10개 핵심 기술 섹션 확장 및 커스텀 SVG 다이어그램 3종 탑재</div>
+                  </div>
+                </div>
+                
+                <!-- Update 2 -->
+                <div class="update-item">
+                  <div class="update-dot" style="--tag-color: #fb923c;"></div>
+                  <div class="update-content">
+                    <div class="update-meta">
+                      <span class="update-tag" style="color: #fb923c;">Fix</span>
+                      <span class="update-date">2026.06.10</span>
+                    </div>
+                    <div class="update-title">LaTeX 수식 기호 렌더링 정상화</div>
+                    <div class="update-desc">지식 창고 전반의 수학식 백슬래시 이스케이프 및 MathJax 깨짐(LoRA, 연산 밀도, 양자화 공식 등) 수정</div>
+                  </div>
+                </div>
+                
+                <!-- Update 3 -->
+                <div class="update-item">
+                  <div class="update-dot" style="--tag-color: #34d399;"></div>
+                  <div class="update-content">
+                    <div class="update-meta">
+                      <span class="update-tag" style="color: #34d399;">Feature</span>
+                      <span class="update-date">2026.06.10</span>
+                    </div>
+                    <div class="update-title">실시간 화면 분할 너비 조절기 추가</div>
+                    <div class="update-desc">트리맵 패널(좌)과 본문 상세창(우)의 경계를 자유롭게 드래그하여 조절하는 수직 크기 조절기 구현</div>
+                  </div>
+                </div>
+                
+                <!-- Update 4 -->
+                <div class="update-item">
+                  <div class="update-dot" style="--tag-color: #60a5fa;"></div>
+                  <div class="update-content">
+                    <div class="update-meta">
+                      <span class="update-tag" style="color: #60a5fa;">UI/UX</span>
+                      <span class="update-date">2026.06.10</span>
+                    </div>
+                    <div class="update-title">소분류 모달 오버레이 영역 국한</div>
+                    <div class="update-desc">트리맵 서브카테고리 팝업 모달이 왼쪽 패널 내부만 가리도록 위치를 재조정하여 인접 화면 탐색성 향상</div>
+                  </div>
+                </div>
+                
+                <!-- Update 5 -->
+                <div class="update-item">
+                  <div class="update-dot" style="--tag-color: #a78bfa;"></div>
+                  <div class="update-content">
+                    <div class="update-meta">
+                      <span class="update-tag" style="color: #a78bfa;">Content</span>
+                      <span class="update-date">2026.06.09</span>
+                    </div>
+                    <div class="update-title">GPU Architecture 아티클 고도화</div>
+                    <div class="update-desc">Hopper/Blackwell/Rubin 변천사, 2.5D 칩렛 공정, HBM4 적층 설계 등 14개 서브섹션 및 커스텀 이미지 추가</div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
