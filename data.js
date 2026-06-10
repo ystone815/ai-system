@@ -349,15 +349,13 @@ window.aiSystemData = [
                 </ul>
               </div>
 
-              <h3>Vera Rubin 아키텍처 핵심 사양</h3>
-              <p>Vera Rubin은 하드웨어와 전송 구조를 전면 최적화하여 초대규모 에이전트 AI 학습 및 추론 성능을 폭발적으로 증가시킵니다.</p>
-              <ul>
-                <li><strong>HBM4 규격 통합:</strong> 단일 Rubin GPU당 <strong>288 GB HBM4 메모리</strong>를 장착하고 <strong>최대 22 TB/s의 메모리 대역폭</strong>을 공급하여 메모리 병목을 완전 해결합니다. (HBM4 제조 공정은 TSMC 로직 파운드리를 탑재한 베이스 다이를 사용)</li>
-                <li><strong>연산 및 전송 성능:</strong> 단일 GPU 기준 <strong>50 PFLOPS의 FP4 추론 연산 속도</strong>를 자랑하며, 3세대 Transformer Engine을 통해 FP4에서 FP64에 이르는 멀티 정밀도 훈련을 완수합니다.</li>
-                <li><strong>Vera Rubin NVL72 랙 스케일:</strong> 36개의 Vera CPU와 72개의 Rubin GPU를 초고속 NVLink 5로 연결하여 단일 캐비닛 내에서 총 20.7 TB of HBM4 메모리와 3,600 PFLOPS의 NVFP4 추론 성능을 실현합니다.</li>
-              </ul>
+              <h3>1. GPU 아키텍처 진화의 역사 (Hopper에서 Blackwell, 그리고 Rubin까지)</h3>
+              <p>현대 인공지능 컴퓨팅의 근간을 이루는 NVIDIA의 가속기 아키텍처는 단일 칩 성능의 극한을 넘어서 클러스터 수준의 연산 능력을 극대화하는 방향으로 발전해 왔습니다. Hopper 아키텍처는 가상 메모리 관리와 FP8 연산 포맷을 처음으로 지원했으며, Blackwell은 이를 칩렛 구조로 확장하고 최초로 FP4 포맷을 하드웨어 수준에서 연산하기 시작했습니다. 향후 도입될 Rubin 아키텍처는 단순한 컴퓨트 성능 향상을 넘어 HBM4 적층 구조와 대형 액체 냉각 패널 설계를 완전히 일체화한 3D 가속 패키징의 정점을 보여줍니다.</p>
 
-              <h4>2.5D Chiplet GPU 패키징 구조 (Blackwell / Rubin CoWoS-L)</h4>
+              <h3>2. 2.5D 및 3D 칩렛(Chiplet) 실리콘 패키징 기술</h3>
+              <p>Blackwell과 Rubin 아키텍처의 핵심은 단일 대형 실리콘 다이의 수율 한계를 극복하기 위해 복수의 다이를 정밀한 실리콘 인터포저 위에 얹어 연결하는 2.5D CoWoS-L(Chip-on-Wafer-on-Substrate with Local Silicon Interconnect) 공정입니다. 다이 간 데이터 인터커넥트(D2D Link)는 양방향 10 TB/s의 무손실 대역폭을 보장하여, 프로그래머는 이를 하나의 거대한 단일 GPU 다이로 인식하고 제어할 수 있습니다.</p>
+              
+              <h4>2.5D Chiplet GPU 패키징 구조 (CoWoS-L)</h4>
               <svg viewBox="0 0 500 220" width="100%" class="svg-diagram">
                 <style>
                   .svg-bg { fill: #11131e; rx: 12px; }
@@ -409,6 +407,51 @@ window.aiSystemData = [
                 <line x1="292" y1="95" x2="292" y2="110" class="conn-line" />
                 <line x1="390" y1="95" x2="390" y2="110" class="conn-line" />
               </svg>
+
+              <h3>3. SM(Streaming Multiprocessor) 내부 구조와 동작 메커니즘</h3>
+              <p>NVIDIA GPU의 핵심 연산 엔진인 SM은 수많은 코어와 제어 장치들의 집합입니다. 각 SM 내에는 명령어를 디코딩하고 워프(Warp) 단위로 스케줄링하는 Warp Scheduler가 존재하며, 부동 소수점 연산을 전담하는 FP32/FP64 코어, 정수 연산을 전담하는 INT32 코어, 그리고 행렬 곱셈 연산을 고속으로 처리하는 전용 하드웨어인 <strong>Tensor Core</strong>가 내장되어 대규모 행렬 계산을 비동기식으로 실행합니다.</p>
+
+              <h3>4. Transformer Engine의 세대 교체와 다이내믹 정밀도</h3>
+              <p>Transformer Engine은 거대 모델의 부동 소수점 학습 과정에서 지수(Exponent)와 가수(Mantissa)의 비트 수를 동적으로 리스케일링하여 최적의 정밀도 수준을 유지하는 특허 기술입니다. Blackwell에 적용된 2세대 엔진은 dynamic quantization 알고리즘을 사용해 연산 정밀도를 분석하며, 정밀도 유실 위험이 큰 레이어는 자동으로 FP8 또는 FP16으로 승격시키고, 패턴이 단순한 연산은 FP4로 강등시켜 FP16 대비 최대 4배의 처리량 상승 효과를 얻습니다.</p>
+
+              <h3>5. GPU 메모리 계층 구조와 레지스터 파일 관리</h3>
+              <p>GPU SM 내부에는 레이턴시가 1사이클 미만인 레지스터 파일(Register File)과 캐시가 존재합니다. 스레드가 최대 1024개까지 런칭되면 메모리 접근 충돌을 회피하기 위해 컴파일러 단에서 스레드당 레지스터 할당량을 엄격히 통제합니다. 레지스터 병목이 일어나면 데이터를 고속 SRAM(L1 캐시/공유 메모리)이나 상대적으로 느린 GPU 외부의 HBM 메모리로 밀어내는 레지스터 스필(Register Spill) 현상이 나타나고, 이는 즉각 연산 레이턴시 상승으로 직결됩니다.</p>
+
+              <h3>6. HBM4 적층 설계와 2048-bit 메모리 인터페이스</h3>
+              <p>차세대 메모리의 핵심인 HBM4는 기존 HBM3e가 가지고 있던 1024비트의 데이터 인터페이스 버스 폭을 **2048비트**로 두 배 확장하여 병목을 없앱니다. 또한, HBM 스택 아래에서 로직 컨트롤러 역할을 하는 베이스 다이(Base Die)가 일반 DRAM 공정이 아닌 TSMC/삼성의 <strong>최첨단 로직 파운드리 공정</strong>으로 대체 제조되어 GPU와의 신호 일관성과 전송 에너지 효율성을 30% 이상 극대화합니다.</p>
+
+              <h3>7. 초고속 인터커넥트 기술: 5세대 NVLink와 NVSwitch</h3>
+              <p>NVLink 기술은 멀티 노드 시스템 설계의 물리적 한계를 완전히 허물어줍니다. 5세대 NVLink는 단일 Blackwell GPU 기준 초당 1.8 TB/s의 전송 대역폭을 전달합니다. 이를 제어하는 NVSwitch 패브릭 칩은 내부적으로 dynamic routing을 지원하여 패킷 드롭이 전혀 발생하지 않는 non-blocking 스위칭 토폴로지를 구성합니다.</p>
+
+              <h3>8. 전력 공급 및 액체 냉각(Liquid Cooling) 기술</h3>
+              <p>GB200 서버 랙 하나에서 소모하는 최대 전력은 약 **120 kW**에 도달합니다. 이를 일반 공랭(Air Cooling) 방식으로 냉각하는 것은 물리적으로 불가능하므로, 차세대 AI 데이터센터는 냉각수가 GPU 칩 표면의 콜드 플레이트(Cold Plate)를 직접 흐르며 열을 회수하는 폐루프 액체 냉각 시스템 기술이 전면 도입됩니다. 이로 인해 인프라 수준의 PUE(Power Usage Effectiveness)가 1.05 이하로 수렴하게 됩니다.</p>
+
+              <h3>9. 시스톨릭 어레이(Systolic Array) 연산 유닛과의 아키텍처 비교</h3>
+              <p>구글의 TPU나 AI 반도체 스타트업들의 가속기에 흔히 사용되는 시스톨릭 어레이(Systolic Array) 방식은 데이터가 바둑판 형태의 프로세서 셀 망을 타고 흐르며 레지스터 접근 없이 인접 셀과 즉시 곱셈/덧셈을 처리하므로 하드웨어 비용 대비 효율성이 높습니다. 반면 NVIDIA GPU는 풍부한 레지스터 파일과 유연한 제어 흐름(Control Flow) 구조를 제공하여 복잡하고 범용적인 수학식 연산에 매우 우수한 적응성을 지닙니다.</p>
+
+              <h3>10. FP4 수치 포맷과 양자화 오차 최소화 기법</h3>
+              <p>FP4는 1비트의 부호(Sign), 2비트의 지수(Exponent), 1비트의 가수(Mantissa) 구조로 극단적인 축소가 이루어진 정밀도 포맷입니다. 수치 표현 공간이 단 16개에 불과하므로, 가중치 분포의 최대-최소 범위를 정교하게 샘플링하고 미세 단위 스케일링 팩터(Scaling Factor) 행렬인 \\( S \\)를 도입하여 원래 정밀도의 데이터를 복원 연산하는 특수 활성화 필터링 처리가 수반됩니다.</p>
+              
+              <div class="info-box">
+                <h4>양자화 변환 수학식</h4>
+                <p>가중치 \\( W_{fp16} \\)를 4비트 포맷 \\( W_{fp4} \\)로 스케일링 팩터 \\( S \\)와 함께 매핑하는 기본 관계식:</p>
+                <p style="text-align: center; font-size: 1.15rem; margin: 12px 0;">
+                  \\( W_{fp16} \approx S \times W_{fp4} \\)
+                </p>
+                <p>여기서 \\( S \\)는 Outlier(극단치)의 영향을 고르게 분산하여 양자화에 따른 정확도(Accuracy) 저하를 방지합니다.</p>
+              </div>
+
+              <h3>11. 초대형 클러스터의 신뢰성 및 장애 방지(RAS) 아키텍처</h3>
+              <p>수만 개의 GPU를 묶어 몇 달간 학습을 계속하면 하드웨어 불량이 일상적으로 발생합니다. 이에 대응하기 위해 Blackwell 이상 아키텍처에는 RAS(Reliability, Availability, and Serviceability) 엔진이 기본 장착되어, 온칩 SRAM의 에러를 정정(ECC)하고 실시간 통신 패킷 이상을 수백 마이크로초 이내에 감지해 패킷을 자동 재전송함으로써 학습이 예기치 않게 다운되는 중단 사고를 미연에 방지합니다.</p>
+
+              <h3>12. 하드웨어 가속을 극대화하는 소프트웨어 런타임 (CUDA & Triton)</h3>
+              <p>하드웨어 아키텍처가 발전할수록 이를 컴파일링하는 런타임의 역할이 치명적으로 중요해집니다. CUDA 프로그래밍의 Warp Level Primitive 연산(예: __shfl_sync)은 워프 내부 스레드 간 초고속 데이터 셔플을 보장하며, Triton 컴파일러는 블록 연산의 메모리 레이아웃을 내부 중간 언어(IR)로 최적화해 GPU 메모리 컨트롤러가 연속된 어드레스 대역을 하나의 큰 버스트 전송(Coalesced Memory Access)으로 퍼내도록 빌드합니다.</p>
+
+              <h3>13. 랙 스케일 아키텍처: GB200/GR200 NVL72 시스템 설계</h3>
+              <p>랙 수준의 통합 컴퓨팅 시스템인 GB200 NVL72는 Grace CPU 36개와 Blackwell GPU 72개를 동축 구리 케이블(Copper Backplane) 백플레인으로 직접 설계했습니다. 구리 케이블 전송 방식은 광 인터커넥트 대비 전송 지연이 극히 짧고 전력 소모량이 거의 제로에 가까워, 72개의 GPU가 단 하나의 거대한 46.8 TB 대역을 갖춘 가상 메모리 단일 풀 GPU 클러스터 도메인으로 매끄럽게 엮이게 만듭니다.</p>
+
+              <h3>14. Rubin Ultra 및 2nm 공정 기반 미래 아키텍처 전망</h3>
+              <p>2026년 이후 출격을 예고한 Rubin 아키텍처는 TSMC의 차세대 3nm 또는 2nm 나노 공정 하에서 3차원 적층 가공을 완수합니다. 나노 공정 세대 교체를 통해 온칩 트랜지스터 밀도가 Hopper 대비 수십 배로 늘어남에 따라 하드웨어 가속 수준은 가파르게 성장을 지속할 것이며, 이는 거대 멀티모달 자율 에이전트 인공지능 시대를 견인하는 핵심 원동력이 될 것입니다.</p>
             `,
             papers: [
               {

@@ -1,50 +1,51 @@
-// app.js - Controller Logic for AI System Knowledge Base
+// app.js - Controller Logic for AI System Knowledge Base (UI Redesign)
 
 class App {
   constructor() {
     this.data = window.aiSystemData || [];
-    this.currentLargeId = null;
     this.currentSmallId = null;
     this.favorites = this.loadFavorites();
     this.searchQuery = "";
-    this.viewMode = localStorage.getItem("ai_system_kb_view_mode") || "list";
     
-    // DOM Elements
-    this.largeCategoryList = document.getElementById("large-category-list");
-    this.subCategoryList = document.getElementById("sub-category-list");
-    this.selectedLargeTitle = document.getElementById("selected-large-title");
-    this.selectedLargeCount = document.getElementById("selected-large-count");
+    // DOM Elements - Left Pane (Treemap)
+    this.treemapContainer = document.getElementById("treemap-container");
     
+    // DOM Elements - Right Pane (Content Screens)
     this.welcomeScreen = document.getElementById("welcome-screen");
     this.articleScreen = document.getElementById("article-screen");
     this.searchScreen = document.getElementById("search-screen");
     this.favoritesScreen = document.getElementById("favorites-screen");
+    this.contentPane = document.querySelector(".content-pane");
     
+    // DOM Elements - Header Search & Action
     this.searchInput = document.getElementById("search-input");
     this.searchClearBtn = document.getElementById("search-clear-btn");
     this.favoritesToggleBtn = document.getElementById("favorites-toggle");
     
-    // View Toggle Elements
-    this.toggleListBtn = document.getElementById("view-toggle-list");
-    this.toggleDiagramBtn = document.getElementById("view-toggle-diagram");
-    this.sidebarDiagram = document.getElementById("sidebar-diagram");
-    this.diagramWrapper = document.getElementById("diagram-wrapper");
+    // DOM Elements - Modal Popup
+    this.subcategoryModal = document.getElementById("subcategory-modal");
+    this.modalLargeBadge = document.getElementById("modal-large-badge");
+    this.modalTitle = document.getElementById("modal-title");
+    this.modalCloseBtn = document.getElementById("modal-close-btn");
+    this.modalItemList = document.getElementById("modal-item-list");
+    
+    // DOM Elements - Article TOC
+    this.tocListItems = document.getElementById("toc-list-items");
     
     this.init();
   }
   
   init() {
-    this.renderLargeSidebar();
-    this.renderBlockDiagram();
+    this.renderTreemap();
     this.bindEvents();
     this.updateFavoritesCount();
     this.updateArticlesCountBadge();
     
-    // Set view mode
-    this.setViewMode(this.viewMode);
-    
     // Show welcome screen initially
     this.showScreen("welcome");
+    
+    // Setup Scroll Spy for Table of Contents
+    this.setupScrollSpy();
   }
   
   // Event Bindings
@@ -76,53 +77,82 @@ class App {
       }
     });
     
-    // View Mode Toggles
-    this.toggleListBtn.addEventListener("click", () => this.setViewMode("list"));
-    this.toggleDiagramBtn.addEventListener("click", () => this.setViewMode("diagram"));
+    // Modal Close handlers
+    this.modalCloseBtn.addEventListener("click", () => {
+      this.closeSubcategoryModal();
+    });
+    
+    // Close modal on clicking overlay backdrop
+    this.subcategoryModal.addEventListener("click", (e) => {
+      if (e.target === this.subcategoryModal) {
+        this.closeSubcategoryModal();
+      }
+    });
+    
+    // Close modal on ESC key
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        this.closeSubcategoryModal();
+      }
+    });
     
     // Mobile responsive drawers
     const mobileToggle = document.getElementById("mobile-menu-toggle");
     const backdrop = document.getElementById("sidebar-backdrop");
     
-    mobileToggle.addEventListener("click", () => {
-      document.body.classList.toggle("sidebar-open");
-    });
+    if (mobileToggle) {
+      mobileToggle.addEventListener("click", () => {
+        document.body.classList.toggle("sidebar-open");
+      });
+    }
     
-    backdrop.addEventListener("click", () => {
-      this.closeMobileDrawer();
-    });
+    if (backdrop) {
+      backdrop.addEventListener("click", () => {
+        this.closeMobileDrawer();
+      });
+    }
+    
+    // Welcome card clicks linking to treemap sectors
+    const welcomeCardApp = document.getElementById("welcome-card-app");
+    const welcomeCardCompute = document.getElementById("welcome-card-compute");
+    const welcomeCardMemory = document.getElementById("welcome-card-memory");
+    
+    if (welcomeCardApp) {
+      welcomeCardApp.addEventListener("click", () => {
+        const targetSector = document.querySelector(".sector-app");
+        if (targetSector) {
+          targetSector.scrollIntoView({ behavior: "smooth" });
+          targetSector.style.transform = "scale(1.02)";
+          setTimeout(() => targetSector.style.transform = "scale(1)", 400);
+        }
+      });
+    }
+    
+    if (welcomeCardCompute) {
+      welcomeCardCompute.addEventListener("click", () => {
+        const targetSector = document.querySelector(".sector-compute");
+        if (targetSector) {
+          targetSector.scrollIntoView({ behavior: "smooth" });
+          targetSector.style.transform = "scale(1.02)";
+          setTimeout(() => targetSector.style.transform = "scale(1)", 400);
+        }
+      });
+    }
+    
+    if (welcomeCardMemory) {
+      welcomeCardMemory.addEventListener("click", () => {
+        const targetSector = document.querySelector(".sector-memory");
+        if (targetSector) {
+          targetSector.scrollIntoView({ behavior: "smooth" });
+          targetSector.style.transform = "scale(1.02)";
+          setTimeout(() => targetSector.style.transform = "scale(1)", 400);
+        }
+      });
+    }
   }
   
   closeMobileDrawer() {
     document.body.classList.remove("sidebar-open");
-  }
-  
-  // View Mode Handler
-  setViewMode(mode) {
-    this.viewMode = mode;
-    localStorage.setItem("ai_system_kb_view_mode", mode);
-    
-    if (mode === "diagram") {
-      document.body.classList.add("mode-diagram");
-      this.sidebarDiagram.classList.remove("hidden");
-      this.toggleListBtn.classList.remove("active");
-      this.toggleDiagramBtn.classList.add("active");
-    } else {
-      document.body.classList.remove("mode-diagram");
-      this.sidebarDiagram.classList.add("hidden");
-      this.toggleListBtn.classList.add("active");
-      this.toggleDiagramBtn.classList.remove("active");
-      
-      // Sync list view sidebar state
-      if (this.currentLargeId) {
-        this.selectLargeCategory(this.currentLargeId);
-      }
-    }
-    
-    // Re-render Lucide icons
-    if (window.lucide) {
-      window.lucide.createIcons();
-    }
   }
   
   // Screen Switching
@@ -132,11 +162,9 @@ class App {
     this.searchScreen.classList.add("hidden");
     this.favoritesScreen.classList.add("hidden");
     
-    // Remove active state from sub-category tree elements and diagram blocks
     if (screenType !== "article") {
-      document.querySelectorAll(".nav-tree-item").forEach(item => item.classList.remove("active"));
-      document.querySelectorAll(".diagram-block").forEach(block => block.classList.remove("active"));
       this.currentSmallId = null;
+      document.querySelectorAll(".treemap-block").forEach(block => block.classList.remove("active"));
     }
     
     if (screenType === "welcome") {
@@ -149,84 +177,62 @@ class App {
       this.favoritesScreen.classList.remove("hidden");
     }
     
+    // Scroll content pane back to top
+    this.contentPane.scrollTop = 0;
+    
     // Re-render Lucide icons
     if (window.lucide) {
       window.lucide.createIcons();
     }
   }
   
-  // 1. Render Large Category Sidebar (대분류)
-  renderLargeSidebar() {
-    this.largeCategoryList.innerHTML = "";
-    
-    this.data.forEach((largeCat, index) => {
-      const btn = document.createElement("button");
-      btn.className = "nav-large-item";
-      btn.setAttribute("data-tooltip", largeCat.title);
-      btn.setAttribute("aria-label", largeCat.title);
-      btn.innerHTML = `<i data-lucide="${largeCat.icon || 'layers'}"></i>`;
-      
-      btn.addEventListener("click", () => {
-        this.selectLargeCategory(largeCat.id);
-        this.closeMobileDrawer();
-      });
-      
-      this.largeCategoryList.appendChild(btn);
-    });
-    
-    if (window.lucide) {
-      window.lucide.createIcons();
-    }
-  }
-  
-  // 1b. Render Visual Block Diagram
-  renderBlockDiagram() {
-    this.diagramWrapper.innerHTML = "";
+  // 1. Render Treemap Layout (Left Panel)
+  renderTreemap() {
+    this.treemapContainer.innerHTML = "";
     
     this.data.forEach(largeCat => {
-      // Create a layer representing the Large Category
-      const layer = document.createElement("div");
-      layer.className = `diagram-layer layer-${largeCat.id}`;
+      // Create Sector (대분류)
+      const sectorDiv = document.createElement("div");
+      sectorDiv.className = `treemap-sector sector-${largeCat.id}`;
       
-      const header = document.createElement("div");
-      header.className = "layer-header";
-      header.innerHTML = `<i data-lucide="${largeCat.icon || 'layers'}"></i><span>${largeCat.title}</span>`;
-      layer.appendChild(header);
+      // Header for sector
+      const sectorHeader = document.createElement("div");
+      sectorHeader.className = "treemap-sector-header";
+      sectorHeader.innerHTML = `<i data-lucide="${largeCat.icon || 'layers'}"></i><span>${largeCat.title}</span>`;
+      sectorDiv.appendChild(sectorHeader);
       
-      const content = document.createElement("div");
-      content.className = "layer-content";
+      // Grid for subcategories
+      const sectorGrid = document.createElement("div");
+      sectorGrid.className = "treemap-sector-grid";
       
       largeCat.subcategories.forEach(sub => {
-        const group = document.createElement("div");
-        group.className = "diagram-group";
+        // Create Block (중분류)
+        const block = document.createElement("div");
+        block.className = "treemap-block";
+        block.setAttribute("data-large-id", largeCat.id);
+        block.setAttribute("data-sub-id", sub.id);
         
-        const groupTitle = document.createElement("div");
-        groupTitle.className = "diagram-group-title";
-        groupTitle.textContent = sub.title;
-        group.appendChild(groupTitle);
+        // Calculate dynamic size/weight indicators if necessary (e.g. badge count)
+        const itemsCount = sub.items.length;
         
-        const grid = document.createElement("div");
-        grid.className = "diagram-block-grid";
+        block.innerHTML = `
+          <div class="treemap-block-label">${sub.title}</div>
+          <div class="treemap-block-count">
+            <i data-lucide="book-open" style="width: 12px; height: 12px;"></i>
+            <span>${itemsCount} 토픽</span>
+          </div>
+        `;
         
-        sub.items.forEach(item => {
-          const block = document.createElement("div");
-          block.className = "diagram-block";
-          block.setAttribute("data-id", item.id);
-          block.textContent = item.title;
-          
-          block.addEventListener("click", () => {
-            this.selectArticle(item.id);
-          });
-          
-          grid.appendChild(block);
+        // Click opens popup modal
+        block.addEventListener("click", () => {
+          this.openSubcategoryModal(largeCat.id, sub.id);
         });
         
-        group.appendChild(grid);
-        content.appendChild(group);
+        sectorGrid.appendChild(block);
       });
       
-      layer.appendChild(content);
-      this.diagramWrapper.appendChild(layer);
+      sectorDiv.appendChild(sectorGrid);
+      this.treemapContainer.appendChild(sectorDiv);
     });
     
     if (window.lucide) {
@@ -234,87 +240,56 @@ class App {
     }
   }
   
-  // Action when a Large Category is selected
-  selectLargeCategory(largeId) {
-    this.currentLargeId = largeId;
-    
-    // Update active class on large sidebar buttons
-    const buttons = this.largeCategoryList.querySelectorAll(".nav-large-item");
-    this.data.forEach((largeCat, index) => {
-      if (largeCat.id === largeId) {
-        buttons[index].classList.add("active");
-        this.selectedLargeTitle.textContent = largeCat.title;
-        
-        // Count subcategories
-        let count = 0;
-        largeCat.subcategories.forEach(sub => count += sub.items.length);
-        this.selectedLargeCount.textContent = `${count} Topics`;
-      } else {
-        buttons[index].classList.remove("active");
-      }
-    });
-    
-    this.renderSubCategorySidebar(largeId);
-  }
-  
-  // Helper for welcome cards to auto-select
-  selectCategory(largeId) {
-    this.selectLargeCategory(largeId);
-    
-    // Select first article of this category automatically
-    const largeCat = this.data.find(c => c.id === largeId);
-    if (largeCat && largeCat.subcategories.length > 0 && largeCat.subcategories[0].items.length > 0) {
-      const firstItem = largeCat.subcategories[0].items[0];
-      this.selectArticle(firstItem.id);
-    }
-  }
-  
-  // 2. Render Sub-Category Sidebar (중분류 -> 소분류)
-  renderSubCategorySidebar(largeId) {
-    this.subCategoryList.innerHTML = "";
+  // 2. Manage Modal Popup
+  openSubcategoryModal(largeId, subId) {
     const largeCat = this.data.find(c => c.id === largeId);
     if (!largeCat) return;
     
-    largeCat.subcategories.forEach(sub => {
-      const groupDiv = document.createElement("div");
-      groupDiv.className = "nav-tree-group";
+    const sub = largeCat.subcategories.find(s => s.id === subId);
+    if (!sub) return;
+    
+    // Set titles
+    this.modalLargeBadge.textContent = largeCat.title;
+    this.modalTitle.textContent = sub.title;
+    
+    // Populate items (소분류)
+    this.modalItemList.innerHTML = "";
+    
+    sub.items.forEach(item => {
+      const itemCard = document.createElement("div");
+      itemCard.className = "modal-item";
+      itemCard.setAttribute("data-id", item.id);
       
-      const titleDiv = document.createElement("div");
-      titleDiv.className = "nav-tree-title";
-      titleDiv.textContent = sub.title;
-      groupDiv.appendChild(titleDiv);
+      itemCard.innerHTML = `
+        <div class="modal-item-title">${item.title}</div>
+        <div class="modal-item-desc">${item.summary}</div>
+      `;
       
-      const itemsDiv = document.createElement("div");
-      itemsDiv.className = "nav-tree-items";
-      
-      sub.items.forEach(item => {
-        const itemLink = document.createElement("a");
-        itemLink.className = "nav-tree-item";
-        itemLink.textContent = item.title;
-        itemLink.setAttribute("data-id", item.id);
-        
-        if (this.currentSmallId === item.id) {
-          itemLink.classList.add("active");
-        }
-        
-        itemLink.addEventListener("click", () => {
-          this.selectArticle(item.id);
-          this.closeMobileDrawer();
-        });
-        
-        itemsDiv.appendChild(itemLink);
+      itemCard.addEventListener("click", () => {
+        this.closeSubcategoryModal();
+        this.selectArticle(item.id);
       });
       
-      groupDiv.appendChild(itemsDiv);
-      this.subCategoryList.appendChild(groupDiv);
+      this.modalItemList.appendChild(itemCard);
     });
+    
+    // Show Modal
+    this.subcategoryModal.classList.remove("hidden");
+    
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
   }
   
-  // 3. Select & Render Article Content (소분류 상세)
+  closeSubcategoryModal() {
+    this.subcategoryModal.classList.add("hidden");
+  }
+  
+  // 3. Render Article & Dynamic TOC (Right Pane)
   selectArticle(smallId) {
     this.currentSmallId = smallId;
     
-    // Find item and its path
+    // Find item and path
     let foundLarge = null;
     let foundMiddle = null;
     let foundItem = null;
@@ -334,29 +309,6 @@ class App {
     
     if (!foundItem) return;
     
-    // Ensure large category sidebar is synchronized
-    if (this.currentLargeId !== foundLarge.id) {
-      this.selectLargeCategory(foundLarge.id);
-    }
-    
-    // Highlight small category link in the middle navigation
-    document.querySelectorAll(".nav-tree-item").forEach(link => {
-      if (link.getAttribute("data-id") === smallId) {
-        link.classList.add("active");
-      } else {
-        link.classList.remove("active");
-      }
-    });
-    
-    // Highlight corresponding block in the diagram view
-    document.querySelectorAll(".diagram-block").forEach(block => {
-      if (block.getAttribute("data-id") === smallId) {
-        block.classList.add("active");
-      } else {
-        block.classList.remove("active");
-      }
-    });
-    
     // Render breadcrumbs
     document.getElementById("breadcrumb-large").textContent = foundLarge.title;
     document.getElementById("breadcrumb-middle").textContent = foundMiddle.title;
@@ -366,7 +318,7 @@ class App {
     document.getElementById("article-title").textContent = foundItem.title;
     document.getElementById("article-summary").textContent = foundItem.summary;
     
-    // Bookmark status visual setup
+    // Bookmark status setup
     const bookmarkBtn = document.getElementById("article-bookmark-btn");
     if (this.favorites.includes(smallId)) {
       bookmarkBtn.classList.add("bookmarked");
@@ -375,7 +327,11 @@ class App {
     }
     
     // Render HTML content safely
-    document.getElementById("article-body").innerHTML = foundItem.content || "<p>설명 문건이 아직 존재하지 않습니다.</p>";
+    const bodyContainer = document.getElementById("article-body");
+    bodyContainer.innerHTML = foundItem.content || "<p>설명 문건이 아직 존재하지 않습니다.</p>";
+    
+    // Create Dynamic Table of Contents (TOC) from h3 headers in body
+    this.generateTOC(bodyContainer);
     
     // Render research papers
     const papersSection = document.getElementById("article-papers-section");
@@ -393,7 +349,7 @@ class App {
           <div class="paper-header">
             <h3 class="paper-title">${paper.title}</h3>
             <a href="${paper.link}" target="_blank" rel="noopener noreferrer" class="btn-paper-link" title="논문 바로가기">
-              <i data-lucide="external-link"></i>
+              <i data-lucide="external-link" style="width:16px; height:16px;"></i>
             </a>
           </div>
           <div class="paper-meta">
@@ -426,7 +382,7 @@ class App {
       resourcesSection.classList.add("hidden");
     }
     
-    // Show the screen
+    // Show Screen
     this.showScreen("article");
     
     // Refresh LaTeX math formatting if MathJax is loaded
@@ -435,7 +391,81 @@ class App {
     }
   }
   
-  // 4. Search Functionality
+  // 4. Generate Table of Contents (TOC) dynamically
+  generateTOC(contentContainer) {
+    this.tocListItems.innerHTML = "";
+    
+    // Grab all h3 elements inside article-body
+    const headers = contentContainer.querySelectorAll("h3");
+    
+    if (headers.length === 0) {
+      document.getElementById("article-toc-sidebar").classList.add("hidden");
+      return;
+    }
+    
+    document.getElementById("article-toc-sidebar").classList.remove("hidden");
+    
+    headers.forEach((header, index) => {
+      // Assign unique ID to header if not present
+      const headerId = `section-${index}`;
+      header.id = headerId;
+      
+      const li = document.createElement("li");
+      li.className = "toc-item";
+      li.setAttribute("data-target", headerId);
+      
+      // Create clickable anchor link
+      const anchor = document.createElement("a");
+      anchor.href = `#${headerId}`;
+      anchor.textContent = header.textContent;
+      
+      // Smooth scrolling to section headers
+      anchor.addEventListener("click", (e) => {
+        e.preventDefault();
+        header.scrollIntoView({ behavior: "smooth", block: "start" });
+        
+        // Highlight active link immediately
+        document.querySelectorAll(".toc-item").forEach(item => item.classList.remove("active"));
+        li.classList.add("active");
+      });
+      
+      li.appendChild(anchor);
+      this.tocListItems.appendChild(li);
+    });
+  }
+  
+  // Scroll Spy for TOC active highlighting
+  setupScrollSpy() {
+    this.contentPane.addEventListener("scroll", () => {
+      if (this.articleScreen.classList.contains("hidden")) return;
+      
+      const headers = document.getElementById("article-body").querySelectorAll("h3");
+      if (headers.length === 0) return;
+      
+      let currentActiveId = "";
+      
+      // Find which header is currently in viewport
+      headers.forEach(header => {
+        const rect = header.getBoundingClientRect();
+        // Since contentPane is scrolling, we offset top check slightly (e.g. 150px offset)
+        if (rect.top <= 150) {
+          currentActiveId = header.id;
+        }
+      });
+      
+      if (currentActiveId) {
+        document.querySelectorAll(".toc-item").forEach(li => {
+          if (li.getAttribute("data-target") === currentActiveId) {
+            li.classList.add("active");
+          } else {
+            li.classList.remove("active");
+          }
+        });
+      }
+    });
+  }
+  
+  // 5. Search Functionality
   handleSearch(query) {
     this.searchQuery = query.trim().toLowerCase();
     
@@ -525,7 +555,7 @@ class App {
     this.showScreen("search");
   }
   
-  // 5. Bookmark (Favorites) Handling
+  // 6. Bookmark (Favorites) Handling
   loadFavorites() {
     const favs = localStorage.getItem("ai_system_kb_favs");
     return favs ? JSON.parse(favs) : [];
