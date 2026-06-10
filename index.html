@@ -110,110 +110,97 @@
         
         <!-- Welcome Screen (Shown when no article selected) -->
         <div id="welcome-screen" class="content-view">
-          <div class="welcome-layout">
-            <!-- Left Side: Welcome Description & Grid -->
-            <div class="welcome-main">
-              <div class="welcome-container">
-                <div class="welcome-icon">
-                  <i data-lucide="layers"></i>
-                </div>
-                <h1>AI System 지식 창고</h1>
-                <p>좌측 트리맵에서 카테고리를 선택해 AI System 설계, 컴퓨트, 메모리, 인터커넥트, 스토리지 스택에 대한 상세 개념 분석과 관련 중요 논문을 탐색해보세요.</p>
-                
-                <div class="welcome-grid">
-                  <div class="welcome-card" id="welcome-card-app">
-                    <i data-lucide="layout"></i>
-                    <h3>Application &amp; Workloads</h3>
-                    <p>LLM 분산 학습, 사전 학습 병목 및 실시간 추론 최적화 기법</p>
-                  </div>
-                  <div class="welcome-card" id="welcome-card-compute">
-                    <i data-lucide="cpu"></i>
-                    <h3>Compute &amp; Accelerators</h3>
-                    <p>GPU/TPU 하드웨어 아키텍처 및 CUDA 스레드 제어 원리</p>
-                  </div>
-                  <div class="welcome-card" id="welcome-card-memory">
-                    <i data-lucide="database"></i>
-                    <h3>Memory Systems</h3>
-                    <p>TSV 적층형 HBM 반도체 기술 및 대역폭 병목 극복 전략</p>
-                  </div>
-                </div>
+          <div class="welcome-changelog-container">
+            <!-- Header section of the changelog -->
+            <div class="changelog-header">
+              <div class="changelog-icon">
+                <i data-lucide="history"></i>
+              </div>
+              <div class="changelog-header-text">
+                <h1>AI System 지식 창고 업데이트 내역</h1>
+                <p>AI 시스템 스택(컴퓨트, 메모리, 인터커넥트, 스토리지)에 관한 최신 업데이트 및 기능 개선 내역입니다.</p>
               </div>
             </div>
             
-            <!-- Right Side: Recent Updates List -->
-            <div class="welcome-updates-sidebar">
-              <div class="updates-header">
-                <i data-lucide="history" class="updates-header-icon"></i>
-                <h2>최근 업데이트 내역</h2>
+            <div class="changelog-divider"></div>
+            
+            <!-- Timeline of changelog cards -->
+            <div class="changelog-timeline">
+              
+              <!-- Item 1: vLLM Article Expansion -->
+              <div class="changelog-card">
+                <div class="changelog-badge-row">
+                  <span class="changelog-tag tag-content">Content</span>
+                  <span class="changelog-date">2026.06.10</span>
+                </div>
+                <h2 class="changelog-title">vLLM &amp; 추론 서빙 핵심 아티클 심층 보강</h2>
+                <p class="changelog-summary">대규모 모델의 실시간 서빙 및 대역폭 병목 극복을 위한 vLLM의 핵심 내부 아키텍처에 대해 10개 섹션 분량의 상세 분석을 수록하고, 3종의 전용 벡터 다이어그램을 탑재했습니다.</p>
+                <ul class="changelog-details">
+                  <li><strong>PagedAttention:</strong> OS 가상 메모리 페이징 기법에 기반한 논리-물리 블록 매핑 구조 분석 및 <strong>인라인 SVG 다이어그램</strong> 탑재</li>
+                  <li><strong>Continuous Batching:</strong> Iteration-level 스케줄러 알고리즘 및 작동 메커니즘 수록</li>
+                  <li><strong>메모리 공유 &amp; Copy-on-Write:</strong> 다중 샘플링 및 빔 서치 시의 물리 블록 공유 및 분기 원리 다이어그램 구현</li>
+                  <li><strong>기타 핵심 최적화:</strong> Prefix Caching, Chunked Prefill, Tensor/Pipeline Parallelism 가속, 엔진 내부 컴포넌트(`BlockManager`, `Scheduler`, `CacheEngine`), 튜닝 가이드 추가</li>
+                </ul>
               </div>
-              <div class="updates-timeline">
-                
-                <!-- Update 1 -->
-                <div class="update-item">
-                  <div class="update-dot" style="--tag-color: #a78bfa;"></div>
-                  <div class="update-content">
-                    <div class="update-meta">
-                      <span class="update-tag" style="color: #a78bfa;">Content</span>
-                      <span class="update-date">2026.06.10</span>
-                    </div>
-                    <div class="update-title">vLLM &amp; 추론 서빙 아티클 심층 보강</div>
-                    <div class="update-desc">PagedAttention, Continuous Batching, Copy-on-Write, APC 등 10개 핵심 기술 섹션 확장 및 커스텀 SVG 다이어그램 3종 탑재</div>
-                  </div>
+              
+              <!-- Item 2: LaTeX Math Rendering Fixes -->
+              <div class="changelog-card">
+                <div class="changelog-badge-row">
+                  <span class="changelog-tag tag-fix">Fix</span>
+                  <span class="changelog-date">2026.06.10</span>
                 </div>
-                
-                <!-- Update 2 -->
-                <div class="update-item">
-                  <div class="update-dot" style="--tag-color: #fb923c;"></div>
-                  <div class="update-content">
-                    <div class="update-meta">
-                      <span class="update-tag" style="color: #fb923c;">Fix</span>
-                      <span class="update-date">2026.06.10</span>
-                    </div>
-                    <div class="update-title">LaTeX 수식 기호 렌더링 정상화</div>
-                    <div class="update-desc">지식 창고 전반의 수학식 백슬래시 이스케이프 및 MathJax 깨짐(LoRA, 연산 밀도, 양자화 공식 등) 수정</div>
-                  </div>
-                </div>
-                
-                <!-- Update 3 -->
-                <div class="update-item">
-                  <div class="update-dot" style="--tag-color: #34d399;"></div>
-                  <div class="update-content">
-                    <div class="update-meta">
-                      <span class="update-tag" style="color: #34d399;">Feature</span>
-                      <span class="update-date">2026.06.10</span>
-                    </div>
-                    <div class="update-title">실시간 화면 분할 너비 조절기 추가</div>
-                    <div class="update-desc">트리맵 패널(좌)과 본문 상세창(우)의 경계를 자유롭게 드래그하여 조절하는 수직 크기 조절기 구현</div>
-                  </div>
-                </div>
-                
-                <!-- Update 4 -->
-                <div class="update-item">
-                  <div class="update-dot" style="--tag-color: #60a5fa;"></div>
-                  <div class="update-content">
-                    <div class="update-meta">
-                      <span class="update-tag" style="color: #60a5fa;">UI/UX</span>
-                      <span class="update-date">2026.06.10</span>
-                    </div>
-                    <div class="update-title">소분류 모달 오버레이 영역 국한</div>
-                    <div class="update-desc">트리맵 서브카테고리 팝업 모달이 왼쪽 패널 내부만 가리도록 위치를 재조정하여 인접 화면 탐색성 향상</div>
-                  </div>
-                </div>
-                
-                <!-- Update 5 -->
-                <div class="update-item">
-                  <div class="update-dot" style="--tag-color: #a78bfa;"></div>
-                  <div class="update-content">
-                    <div class="update-meta">
-                      <span class="update-tag" style="color: #a78bfa;">Content</span>
-                      <span class="update-date">2026.06.09</span>
-                    </div>
-                    <div class="update-title">GPU Architecture 아티클 고도화</div>
-                    <div class="update-desc">Hopper/Blackwell/Rubin 변천사, 2.5D 칩렛 공정, HBM4 적층 설계 등 14개 서브섹션 및 커스텀 이미지 추가</div>
-                  </div>
-                </div>
-
+                <h2 class="changelog-title">지식 창고 전반의 LaTeX 수식 렌더링 정상화</h2>
+                <p class="changelog-summary">JavaScript 템플릿 리터럴 내부에서 LaTeX 명령어의 백슬래시가 탈락해 수식이 깨지던 시스템 버그를 해결했습니다.</p>
+                <ul class="changelog-details">
+                  <li><strong>LoRA 변환 공식:</strong> Fine-tuning &amp; Alignment 섹션 내 \\( \\Delta W \\) 저차원 분해 수식 렌더링 정상화</li>
+                  <li><strong>산술적 연산 밀도 공식:</strong> vLLM 섹션 내 Arithmetic Intensity 공식 및 기호 정상 출력</li>
+                  <li><strong>양자화 변환 수학식:</strong> GPU Architecture 섹션 내 FP4 변환 식과 스케일 팩터 \\( \\approx, \\times \\) 연산자 복구</li>
+                </ul>
               </div>
+              
+              <!-- Item 3: Split-Pane Resizer -->
+              <div class="changelog-card">
+                <div class="changelog-badge-row">
+                  <span class="changelog-tag tag-feature">Feature</span>
+                  <span class="changelog-date">2026.06.10</span>
+                </div>
+                <h2 class="changelog-title">실시간 화면 분할 너비 조절기(Resizer) 추가</h2>
+                <p class="changelog-summary">와이드 스크린 환경에서 가독성을 높이기 위해 트리맵 패널과 상세 내용창 간의 경계를 조절하는 드래그 바를 도입했습니다.</p>
+                <ul class="changelog-details">
+                  <li><strong>드래그 핸들:</strong> 마우스 드래그를 통해 좌측 트리맵 너비를 20%에서 70%까지 실시간 유연하게 조절 가능</li>
+                  <li><strong>Resizing 상태 제어:</strong> 드래그 중인 상태에서는 텍스트 드래그 및 타 패널 마우스 호버 간섭을 방지하는 CSS/JS 예외 처리 적용</li>
+                </ul>
+              </div>
+              
+              <!-- Item 4: Localized Modal Popup -->
+              <div class="changelog-card">
+                <div class="changelog-badge-row">
+                  <span class="changelog-tag tag-ui">UI/UX</span>
+                  <span class="changelog-date">2026.06.10</span>
+                </div>
+                <h2 class="changelog-title">소분류 모달 오버레이 영역을 좌측 패널 내로 국한</h2>
+                <p class="changelog-summary">트리맵 블록 클릭 시 전체 화면을 가리던 모달 팝업의 마스킹 범위를 개선하여 우측 상세 보기와의 조화를 꾀했습니다.</p>
+                <ul class="changelog-details">
+                  <li><strong>로컬 모달 마스킹:</strong> 모달 팝업 및 배경 블러 처리가 좌측 트리맵 패널 내에서만 가동되도록 위치 설정</li>
+                  <li><strong>멀티태스킹 최적화:</strong> 팝업이 떠 있는 상태에서도 우측 상세 창의 글을 막힘없이 읽고 스크롤 가능</li>
+                </ul>
+              </div>
+              
+              <!-- Item 5: GPU Architecture Section -->
+              <div class="changelog-card">
+                <div class="changelog-badge-row">
+                  <span class="changelog-tag tag-content">Content</span>
+                  <span class="changelog-date">2026.06.09</span>
+                </div>
+                <h2 class="changelog-title">NVIDIA GPU 아키텍처 변천사 아티클 대폭 보강</h2>
+                <p class="changelog-summary">가속기 하드웨어 발전 동향에 맞춰 Hopper, Blackwell, 차세대 Rubin 아키텍처까지 14개 서브섹션 분량의 기술 분석 자료를 업데이트했습니다.</p>
+                <ul class="changelog-details">
+                  <li><strong>칩렛 실리콘 패키징:</strong> TSMC CoWoS-L 2.5D 공정 및 10 TB/s D2D 링크 기술 해설</li>
+                  <li><strong>HBM4 적층 설계:</strong> 2048-bit 메모리 버스 인터페이스 및 파운드리 컨트롤러 베이스 다이 구조 분석</li>
+                  <li><strong>서버 랙 설계:</strong> 120kW 급 수랭식 냉각 및 Grace CPU와 72개 GPU 구리 동축 백플레인(GB200 NVL72) 설계 수록</li>
+                </ul>
+              </div>
+              
             </div>
           </div>
         </div>
